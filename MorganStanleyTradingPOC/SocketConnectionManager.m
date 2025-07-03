@@ -10,6 +10,7 @@
 
 @interface SocketConnectionManager()<SRWebSocketDelegate>
 @property (strong, nonatomic) SRWebSocket *webSocket;
+@property (strong, nonatomic, nonnull) NSMutableDictionary* livePriceDictionary;
 @end
 
 @implementation SocketConnectionManager
@@ -20,6 +21,7 @@
         NSURL *url = [NSURL URLWithString:@"wss://stream.data.alpaca.markets/v2/iex"];
         self.webSocket = [[SRWebSocket alloc] initWithURL:url];
         self.webSocket.delegate = self;
+        _livePriceDictionary = [[NSMutableDictionary alloc]init];
         [self.webSocket open];
     }
     return self;
@@ -40,17 +42,30 @@
     [self authenticateWebSocketConnection];
 }
 
-- (void)webSocket:(SRWebSocket *)webSocket didReceiveMessage:(id)message {    
-    NSData *response;
+- (void)webSocket:(SRWebSocket *)webSocket didReceiveMessage:(id)message {
+    NSData *responseData;
     if([message isKindOfClass:[NSData class]]) {
-        response = message;
+        responseData = message;
     } else {
-        response = [message dataUsingEncoding:NSUTF8StringEncoding];
+        responseData = [message dataUsingEncoding:NSUTF8StringEncoding];
     }
     
     NSError *error;
-    NSDictionary *dict = [NSJSONSerialization JSONObjectWithData:response options:0 error:&error];
-    NSLog(@"received message %@", dict);
+    NSArray<NSDictionary*> *responseArray = [NSJSONSerialization JSONObjectWithData:responseData options:0 error:&error];
+    NSDictionary* responseDict = responseArray.lastObject;
+    if(responseDict != NULL) {
+        NSArray<NSString*> *keys = responseDict.allKeys;
+        if([keys containsObject: @"S"] && [keys containsObject: @"p"] && responseDict[@"p"] != NULL && responseDict[@"S"] != NULL) {
+            NSString *assetSymbol = responseDict[@"S"];
+            NSString *price = [responseDict[@"p"] stringValue];
+            _livePriceDictionary[assetSymbol] = price;
+            [_connectionDelegate didReceivePrice:price forAsset:assetSymbol];
+        }
+    }
+}
+
+- (NSString *)fetchPrice:(NSString *)assetName {
+    return  _livePriceDictionary[assetName];
 }
 
 - (void)webSocket:(SRWebSocket *)webSocket didFailWithError:(NSError *)error {
@@ -69,11 +84,18 @@
    
 }
 
-- (void)fetchPriceForSymbol:(NSString *)symbol {
-    NSDictionary *authPayload = @{@"action": @"subscribe", @"trades": @[@"AAPL"]};
+- (void)subscribeAssets:(NSArray<NSString *>*)assets {
+    NSDictionary *authPayload = @{@"action": @"subscribe", @"trades": @[@"AMZN", @"AAPL",@"MLGO", @"INTC"]};
     NSData *jsonData = [NSJSONSerialization dataWithJSONObject:authPayload options:0 error:nil];
     NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
     [self sendMessage:jsonString];
 }
 
 @end
+
+
+/*
+
+ AMZN, AAPL,MLGO, INTC,
+ 
+*/

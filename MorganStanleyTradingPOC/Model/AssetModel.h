@@ -14,6 +14,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, nonnull, strong) NSString *assetType;
 @property(nonatomic, nonnull, strong) NSString *symbol ;
 @property(nonatomic, nonnull, strong) NSString *name;
+@property (nonatomic, assign) BOOL tradable ;
 
 - (instancetype)initWithDictionary: (NSDictionary*) dict;
 @end

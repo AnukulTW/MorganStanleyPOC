@@ -9,12 +9,15 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+@protocol SocketConnectionManagerDelegate <NSObject>
+- (void)didReceivePrice:(NSString *)price forAsset:(NSString *)asset;
+@end
 
 
 @interface SocketConnectionManager : NSObject
-- (void)fetchPriceForSymbol:(NSString *)symbol;
-//@property (nonatomic, weak) id<SocketConnectionManagerDelegate> connectionDelegate;
-
+@property (nonatomic, weak) id<SocketConnectionManagerDelegate> connectionDelegate;
+- (void)subscribeAssets:(NSArray<NSString *>*)assets;
+- (NSString *)fetchPrice:(NSString *)assetName;
 @end
 
 NS_ASSUME_NONNULL_END

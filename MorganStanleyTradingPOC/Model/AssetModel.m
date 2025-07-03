@@ -16,6 +16,7 @@
         _assetType = dict[@"class"];
         _symbol = dict[@"symbol"];
         _name= dict[@"name"];
+        _tradable = dict[@"tradable"];
     }
     return self;
 }
