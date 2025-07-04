@@ -64,6 +64,15 @@
     }
 }
 
+- (void)updateAssetLastQuote:(NSArray<AssetQuoteModel*> *)assetQuoteArray {
+    for(AssetQuoteModel * assetQuote in assetQuoteArray) {
+        NSString *assetName = assetQuote.assetName;
+        if(_livePriceDictionary[assetName] == NULL) {
+            _livePriceDictionary[assetName] = [NSString stringWithFormat:@"%.2f", assetQuote.askPrice];
+        }
+    }
+}
+
 - (NSString *)fetchPrice:(NSString *)assetName {
     return  _livePriceDictionary[assetName];
 }

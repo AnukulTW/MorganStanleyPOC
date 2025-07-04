@@ -9,12 +9,14 @@
 #import "SocketConnectionManager.h"
 #import "NetworkConnectionManager.h"
 #import "Model/AssetModel.h"
+#import "Model/AssetQuoteModel.h"
 #import "AssetTableViewCell.h"
 
 @interface TradeViewController ()<UITableViewDataSource, SocketConnectionManagerDelegate>
 @property (nonatomic, nonnull, strong) SocketConnectionManager *socket;
 @property (nonatomic, nonnull, strong) UITableView *instrumentList;
 @property (nonatomic, nonnull, strong) NSArray *assetList;
+@property (nonatomic, nonnull, strong) NSArray *requiredSymbol;
 
 @end
 
@@ -24,6 +26,8 @@
     [super viewDidLoad];
     _socket = [[SocketConnectionManager alloc]init];
     _socket.connectionDelegate = self;
+    _requiredSymbol = @[@"AMZN", @"AAPL",@"MLGO", @"INTC", @"AMTM", @"ARCA", @"ANAB", @"ABNB"];
+    [self fetchLastQuotes];
     [self setupUIComponents];
     [self layoutContraints];
     [self fetchAsset];
@@ -79,7 +83,6 @@
 }
 
 - (void)fetchAsset {
-    
     NetworkConnectionManager *connection = [[NetworkConnectionManager alloc]init];
     __weak typeof(self) weakSelf = self;
     
@@ -94,13 +97,12 @@
             NSInteger counter = 0;
             NSMutableArray *assetArray = [[NSMutableArray alloc]init];
             NSMutableArray<NSString *> *assetList = [[NSMutableArray alloc]init];
-            NSArray* requiredSymbol = @[@"AMZN", @"AAPL",@"MLGO", @"INTC", @"AMTM", @"ARCA", @"ANAB", @"ABNB"];
             for (NSDictionary *dict in responseArray) {
                 if (counter > 25) {
                     break;
                 }
                 AssetModel *model = [[AssetModel alloc]initWithDictionary: dict];
-                if(model != NULL && model.tradable && [requiredSymbol containsObject: model.symbol]) {
+                if(model != NULL && model.tradable && [weakSelf.requiredSymbol containsObject: model.symbol]) {
                     counter = counter + 1;
                     [assetArray addObject:model];
                     [assetList addObject: model.symbol];
@@ -111,6 +113,46 @@
             [weakSelf subscribeAssetLivePriceConnection:assetList];
         }
     }];
+}
+
+- (void)fetchLastQuotes {
+    NetworkConnectionManager *connection = [[NetworkConnectionManager alloc]init];
+    __weak typeof(self) weakSelf = self;
+    
+    [connection fetchLastQuoteForAsset: _requiredSymbol
+                            completion:^(NSData * _Nullable data, NSError * _Nullable error) {
+        if(data != NULL) {
+            NSError *decodingError;
+            NSDictionary *responseDict = [NSJSONSerialization JSONObjectWithData:data
+                                                                         options:0
+                                                                           error:&decodingError];
+            
+            NSDictionary *quotesDict = responseDict[@"quotes"];
+            NSMutableArray *assetQuoteArray = [[NSMutableArray alloc]initWithCapacity: [weakSelf.requiredSymbol count]];
+            if(quotesDict != NULL) {
+                [quotesDict enumerateKeysAndObjectsUsingBlock:^(NSString *assetName, NSDictionary *quoteDict, BOOL *stop) {
+                    AssetQuoteModel *model = [[AssetQuoteModel alloc]initWithQuoteDictionary:quoteDict
+                                                                                    forAsset:assetName];
+                    if(model != NULL) {
+                        [assetQuoteArray addObject: model];
+                    }
+                }];
+            }
+            
+            [weakSelf updateAssetLatestQuoteAndRefreshUI: assetQuoteArray];
+        }
+    }];
+}
+
+- (void)updateAssetLatestQuoteAndRefreshUI:(NSArray<AssetQuoteModel *> *)assetQuoteArray {
+    __weak typeof(self) weakSelf = self;
+    
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        dispatch_async(dispatch_get_main_queue(),^ {
+            [weakSelf.socket updateAssetLastQuote: assetQuoteArray];
+            [weakSelf.instrumentList reloadData];
+        });
+    });
 }
 
 - (void)reloadWithAssetList:(NSArray *)newAssetList {

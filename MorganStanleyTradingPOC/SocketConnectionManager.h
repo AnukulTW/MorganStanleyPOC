@@ -6,6 +6,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "Model/AssetQuoteModel.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -18,6 +19,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, weak) id<SocketConnectionManagerDelegate> connectionDelegate;
 - (void)subscribeAssets:(NSArray<NSString *>*)assets;
 - (NSString *)fetchPrice:(NSString *)assetName;
+- (void)updateAssetLastQuote:(NSArray<AssetQuoteModel*> *)assetQuoteArray;
 @end
 
 NS_ASSUME_NONNULL_END
