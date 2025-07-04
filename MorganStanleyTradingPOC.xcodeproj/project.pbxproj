@@ -27,22 +27,11 @@
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
-/* Begin PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
-		35B451C12E180872008BBF2A /* Exceptions for "MorganStanleyTradingPOC" folder in "Compile Sources" phase from "MorganStanleyTradingPOC" target */ = {
-			isa = PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet;
-			buildPhase = E5E1E8CF2E165AA5007D9A21 /* Sources */;
-			membershipExceptions = (
-				QuotesClient.h,
-			);
-		};
-/* End PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
-
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		E5E1E8D52E165AA5007D9A21 /* MorganStanleyTradingPOC */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
 				E5E1E8EA2E165AA6007D9A21 /* Exceptions for "MorganStanleyTradingPOC" folder in "MorganStanleyTradingPOC" target */,
-				35B451C12E180872008BBF2A /* Exceptions for "MorganStanleyTradingPOC" folder in "Compile Sources" phase from "MorganStanleyTradingPOC" target */,
 			);
 			path = MorganStanleyTradingPOC;
 			sourceTree = "<group>";
