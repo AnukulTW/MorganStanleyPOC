@@ -6,26 +6,31 @@
 //
 
 #import "MarketViewController.h"
+#import "TopMarketMoverView.h"
 
 @interface MarketViewController ()
-
+@property (nonatomic, nonnull ,strong) TopMarketMoverView *topMovers;
 @end
 
 @implementation MarketViewController
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    // Do any additional setup after loading the view.
+    [self setupTopMovers];
+    
+    [self.view addSubview:_topMovers];
+    [NSLayoutConstraint activateConstraints: @[
+        [_topMovers.leadingAnchor constraintEqualToAnchor: self.view.safeAreaLayoutGuide.leadingAnchor
+                                                 constant: 10],
+        [_topMovers.topAnchor constraintEqualToAnchor: self.view.safeAreaLayoutGuide.topAnchor],
+        [_topMovers.trailingAnchor constraintEqualToAnchor: self.view.safeAreaLayoutGuide.trailingAnchor
+                                                  constant: -10]
+    ]];
 }
 
-/*
-#pragma mark - Navigation
-
-// In a storyboard-based application, you will often want to do a little preparation before navigation
-- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
-    // Get the new view controller using [segue destinationViewController].
-    // Pass the selected object to the new view controller.
+- (void)setupTopMovers {
+    _topMovers = [[TopMarketMoverView alloc]init];
+    _topMovers.translatesAutoresizingMaskIntoConstraints = NO;
 }
-*/
 
 @end
