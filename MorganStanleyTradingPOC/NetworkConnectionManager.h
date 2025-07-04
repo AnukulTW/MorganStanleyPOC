@@ -6,13 +6,17 @@
 //
 
 #import <Foundation/Foundation.h>
-
+#import "NetworkManaging.h"
 NS_ASSUME_NONNULL_BEGIN
 
-@interface NetworkConnectionManager : NSObject
-- (void)fetchData:(void (^)(NSData* _Nullable , NSError* _Nullable))completion;
-- (void)fetchLastQuoteForAsset: (NSArray<NSString *> *)assets
-                    completion: (void (^)(NSData* _Nullable , NSError* _Nullable))completion;
+typedef void(^NetworkCompletion)(NSData * _Nullable data, NSError * _Nullable error);
+
+@interface NetworkConnectionManager : NSObject<NetworkManaging>
+
+- (instancetype)initWithAPIKey:(NSString *)apiKey
+                    apiSecret:(NSString *)apiSecret;
+
 @end
 
 NS_ASSUME_NONNULL_END
+

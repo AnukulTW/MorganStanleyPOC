@@ -11,12 +11,13 @@
 #import "Model/AssetModel.h"
 #import "Model/AssetQuoteModel.h"
 #import "AssetTableViewCell.h"
-
+#import "MarketAssetClient.h"
+#import <MorganStanleyTradingPOC-Swift.h>
 @interface TradeViewController ()<UITableViewDataSource, SocketConnectionManagerDelegate>
 @property (nonatomic, nonnull, strong) SocketConnectionManager *socket;
 @property (nonatomic, nonnull, strong) UITableView *instrumentList;
 @property (nonatomic, nonnull, strong) NSArray *assetList;
-@property (nonatomic, nonnull, strong) NSArray *requiredSymbol;
+@property (nonatomic, nonnull, strong) MarketAssetClient *assetClient;
 
 @end
 
@@ -26,7 +27,9 @@
     [super viewDidLoad];
     _socket = [[SocketConnectionManager alloc]init];
     _socket.connectionDelegate = self;
-    _requiredSymbol = @[@"AMZN", @"AAPL",@"MLGO", @"INTC", @"AMTM", @"ARCA", @"ANAB", @"ABNB"];
+    NetworkConnectionManager *manager = [[NetworkConnectionManager alloc] initWithAPIKey:Constants.apiKey apiSecret:Constants.apiSecret];
+    _assetClient = [[MarketAssetClient alloc] initWithNetworkManager:manager];
+    _assetClient.requiredSymbol = @[@"AMZN", @"AAPL",@"MLGO", @"INTC", @"AMTM", @"ARCA", @"ANAB", @"ABNB"];
     [self fetchLastQuotes];
     [self setupUIComponents];
     [self layoutContraints];
@@ -83,64 +86,17 @@
 }
 
 - (void)fetchAsset {
-    NetworkConnectionManager *connection = [[NetworkConnectionManager alloc]init];
     __weak typeof(self) weakSelf = self;
-    
-    [connection fetchData:^(NSData * _Nullable data, NSError * _Nullable error) {
-        
-        if(data != NULL) {
-            NSError *decodingError;
-            NSArray *responseArray = [NSJSONSerialization JSONObjectWithData:data
-                                                                     options:0
-                                                                       error:&decodingError];
-            
-            NSInteger counter = 0;
-            NSMutableArray *assetArray = [[NSMutableArray alloc]init];
-            NSMutableArray<NSString *> *assetList = [[NSMutableArray alloc]init];
-            for (NSDictionary *dict in responseArray) {
-                if (counter > 25) {
-                    break;
-                }
-                AssetModel *model = [[AssetModel alloc]initWithDictionary: dict];
-                if(model != NULL && model.tradable && [weakSelf.requiredSymbol containsObject: model.symbol]) {
-                    counter = counter + 1;
-                    [assetArray addObject:model];
-                    [assetList addObject: model.symbol];
-                }
-            }
-            
-            [weakSelf reloadWithAssetList:assetArray];
-            [weakSelf subscribeAssetLivePriceConnection:assetList];
-        }
+    [_assetClient fetchMarketAssetWithCompletion:^(NSArray<AssetQuoteModel *> * _Nullable result, NSArray<NSString *> * _Nullable list, NSError * _Nullable error) {
+            [weakSelf reloadWithAssetList:result];
+            [weakSelf subscribeAssetLivePriceConnection:list];
     }];
-}
+        }
 
 - (void)fetchLastQuotes {
-    NetworkConnectionManager *connection = [[NetworkConnectionManager alloc]init];
     __weak typeof(self) weakSelf = self;
-    
-    [connection fetchLastQuoteForAsset: _requiredSymbol
-                            completion:^(NSData * _Nullable data, NSError * _Nullable error) {
-        if(data != NULL) {
-            NSError *decodingError;
-            NSDictionary *responseDict = [NSJSONSerialization JSONObjectWithData:data
-                                                                         options:0
-                                                                           error:&decodingError];
-            
-            NSDictionary *quotesDict = responseDict[@"quotes"];
-            NSMutableArray *assetQuoteArray = [[NSMutableArray alloc]initWithCapacity: [weakSelf.requiredSymbol count]];
-            if(quotesDict != NULL) {
-                [quotesDict enumerateKeysAndObjectsUsingBlock:^(NSString *assetName, NSDictionary *quoteDict, BOOL *stop) {
-                    AssetQuoteModel *model = [[AssetQuoteModel alloc]initWithQuoteDictionary:quoteDict
-                                                                                    forAsset:assetName];
-                    if(model != NULL) {
-                        [assetQuoteArray addObject: model];
-                    }
-                }];
-            }
-            
-            [weakSelf updateAssetLatestQuoteAndRefreshUI: assetQuoteArray];
-        }
+    [_assetClient fetchLastQuoteForAsset:@[@"AMZN", @"AAPL",@"MLGO", @"INTC", @"AMTM", @"ARCA", @"ANAB", @"ABNB"] completion:^(NSArray<AssetQuoteModel *> * _Nullable result, NSError * _Nullable error) {
+        [weakSelf updateAssetLatestQuoteAndRefreshUI: result];
     }];
 }
 

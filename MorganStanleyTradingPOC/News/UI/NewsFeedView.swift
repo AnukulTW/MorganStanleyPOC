@@ -47,7 +47,7 @@ struct NewsFeedView: View {
 
 struct NewsFeedView_Previews: PreviewProvider {
     static var previews: some View {
-        let dummyClient = NewsAPIClient(apiKey: "demo-key", apiSecret: "demo-secret")
+        let dummyClient = NewsClient(apiKey: "demo-key", apiSecret: "demo-secret")
         let repository = NewsRepository(apiClient: dummyClient)
         let viewModel = NewsFeedViewModel(repository: repository)
         NewsFeedView(viewModel: viewModel)

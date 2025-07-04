@@ -7,86 +7,66 @@
 
 #import "NetworkConnectionManager.h"
 
-@interface NetworkConnectionManager()
-@property (strong, nonatomic) NSURLSession *urlSession;
+@interface NetworkConnectionManager ()
+@property (nonatomic, strong) NSURLSession *urlSession;
+@property (nonatomic, copy) NSString *apiKey;
+@property (nonatomic, copy) NSString *apiSecret;
 @end
 
 @implementation NetworkConnectionManager
 
-- (instancetype)init {
+- (instancetype)initWithAPIKey:(NSString *)apiKey
+                    apiSecret:(NSString *)apiSecret {
     self = [super init];
     if (self) {
         _urlSession = [NSURLSession sharedSession];
+        _apiKey = apiKey;
+        _apiSecret = apiSecret;
     }
     return self;
 }
 
+- (void)sendRequestWithURL:(NSURL *)url
+                    method:(NSString *)httpMethod
+               queryParams:(nullable NSDictionary<NSString *, NSString *> *)queryParams
+                   headers:(nullable NSDictionary<NSString *, NSString *> *)headers
+                      body:(nullable NSData *)body
+                completion:(NetworkCompletion)completion {
 
-- (void)fetchData:(void (^)(NSData* _Nullable , NSError* _Nullable))completion {
+    NSURLComponents *components = [NSURLComponents componentsWithURL:url resolvingAgainstBaseURL:NO];
     
-    NSURL *baseURL = [[NSURL alloc]initWithString: @"https://paper-api.alpaca.markets/v2/assets"];
-    NSURLComponents *components = [NSURLComponents componentsWithURL:baseURL resolvingAgainstBaseURL:NO];
-    NSURLQueryItem *queryItem = [NSURLQueryItem queryItemWithName:@"status" value:@"active"];
-    components.queryItems = @[queryItem];
+    if (queryParams) {
+        NSMutableArray<NSURLQueryItem *> *queryItems = [NSMutableArray array];
+        for (NSString *key in queryParams) {
+            [queryItems addObject:[NSURLQueryItem queryItemWithName:key value:queryParams[key]]];
+        }
+        components.queryItems = queryItems;
+    }
+    
     NSURL *finalURL = components.URL;
+    NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:finalURL];
+    request.HTTPMethod = httpMethod;
+    request.HTTPBody = body;
+    request.timeoutInterval = 10;
 
-    NSMutableURLRequest *request = [[NSMutableURLRequest alloc]initWithURL:finalURL];
-    [request setHTTPMethod:@"GET"];
+    // Default headers
     [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
-    [request setValue:@"PKYZ8FLRID2JGVKBLDJA" forHTTPHeaderField:@"APCA-API-KEY-ID"];
-    [request setValue:@"ECVgORFsR9EunOvZrSBqmSgz9VzPHOJqTc9C2g0H" forHTTPHeaderField:@"APCA-API-SECRET-KEY"];
-    
-    NSURLSessionDataTask *task = [_urlSession dataTaskWithRequest: request
-                                                completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
-        completion(data, error);
+    [request setValue:self.apiKey forHTTPHeaderField:@"APCA-API-KEY-ID"];
+    [request setValue:self.apiSecret forHTTPHeaderField:@"APCA-API-SECRET-KEY"];
+
+    // Custom headers
+    for (NSString *headerKey in headers) {
+        [request setValue:headers[headerKey] forHTTPHeaderField:headerKey];
+    }
+
+    NSURLSessionDataTask *task = [self.urlSession dataTaskWithRequest:request
+                                                    completionHandler:^(NSData * _Nullable data,
+                                                                        NSURLResponse * _Nullable response,
+                                                                        NSError * _Nullable error) {
+        if (completion) {
+            completion(data, error);
+        }
     }];
-    
-    [task resume];
-}
-
-- (void)fetchLastQuoteForAsset: (NSArray<NSString *> *)assets
-                    completion: (void (^)(NSData* _Nullable , NSError* _Nullable))completion {
-    
-    NSURL *baseURL = [[NSURL alloc]initWithString: @"https://data.alpaca.markets/v2/stocks/quotes/latest"];
-    NSURLComponents *components = [NSURLComponents componentsWithURL:baseURL resolvingAgainstBaseURL:NO];
-    NSString *commaSeparateQuotes = [assets componentsJoinedByString: @","];
-    NSString *encodedString = [commaSeparateQuotes stringByAddingPercentEncodingWithAllowedCharacters: [NSCharacterSet URLQueryAllowedCharacterSet]];
-
-    NSURLQueryItem *queryItem = [NSURLQueryItem queryItemWithName:@"symbols" value: encodedString];
-    components.queryItems = @[queryItem];
-    NSURL *finalURL = components.URL;
-
-    NSMutableURLRequest *request = [[NSMutableURLRequest alloc]initWithURL:finalURL];
-    [request setHTTPMethod:@"GET"];
-    [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
-    [request setValue:@"PKYZ8FLRID2JGVKBLDJA" forHTTPHeaderField:@"APCA-API-KEY-ID"];
-    [request setValue:@"ECVgORFsR9EunOvZrSBqmSgz9VzPHOJqTc9C2g0H" forHTTPHeaderField:@"APCA-API-SECRET-KEY"];
-    
-    NSURLSessionDataTask *task = [_urlSession dataTaskWithRequest: request
-                                                completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
-        completion(data, error);
-    }];
-    
-    [task resume];
-}
-
-- (void)fetchMostActiveStocksWithCompletion: (void (^)(NSData* _Nullable , NSError* _Nullable))completion {
-    NSURL *baseURL = [[NSURL alloc]initWithString: @"https://data.alpaca.markets/v1beta1/screener/stocks/most-actives"];
-    NSURLComponents *components = [NSURLComponents componentsWithURL:baseURL resolvingAgainstBaseURL:NO];
-    NSURLQueryItem *queryItem = [NSURLQueryItem queryItemWithName:@"by" value: @"volume"];
-    components.queryItems = @[queryItem];
-    NSURL *finalURL = components.URL;
-    NSMutableURLRequest *request = [[NSMutableURLRequest alloc]initWithURL:finalURL];
-    [request setHTTPMethod:@"GET"];
-    [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
-    [request setValue:@"PKYZ8FLRID2JGVKBLDJA" forHTTPHeaderField:@"APCA-API-KEY-ID"];
-    [request setValue:@"ECVgORFsR9EunOvZrSBqmSgz9VzPHOJqTc9C2g0H" forHTTPHeaderField:@"APCA-API-SECRET-KEY"];
-    
-    NSURLSessionDataTask *task = [_urlSession dataTaskWithRequest: request
-                                                completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
-        completion(data, error);
-    }];
-    
     [task resume];
 }
 
