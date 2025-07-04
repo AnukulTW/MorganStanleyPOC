@@ -67,20 +67,20 @@
     _assetSymbol = [[UILabel alloc]init];
     _assetSymbol.translatesAutoresizingMaskIntoConstraints = NO;
     _assetSymbol.font = [UIFont systemFontOfSize: 14];
-    _assetSymbol.textColor = [UIColor blackColor];
+    _assetSymbol.textColor = [UIColor grayColor];
 }
 
 - (void)setupAssetTypeLabel {
     _assetType = [[UILabel alloc]init];
     _assetType.translatesAutoresizingMaskIntoConstraints = NO;
     _assetType.font = [UIFont systemFontOfSize: 14];
-    _assetType.textColor = [UIColor blackColor];
+    _assetType.textColor = [UIColor grayColor];
 }
 
 - (void)setupAssetLivePriceLabel {
     _assetLivePrice = [[UILabel alloc]init];
     _assetLivePrice.translatesAutoresizingMaskIntoConstraints = NO;
-    _assetLivePrice.font = [UIFont systemFontOfSize: 14];
+    _assetLivePrice.font = [UIFont boldSystemFontOfSize:15.0];
     _assetLivePrice.textColor = [UIColor blackColor];
 }
 
