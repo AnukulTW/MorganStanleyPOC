@@ -6,7 +6,7 @@
 //
 
 #import "LandingTabViewController.h"
-#import "ViewController.h"
+#import "TradeViewController.h"
 #import "NewsListViewController.h"
 
 @implementation LandingTabViewController
@@ -15,7 +15,7 @@
     [super viewDidLoad];
 
     // Create first view controller
-    ViewController *firstVC = [[ViewController alloc] init];
+    TradeViewController *firstVC = [[TradeViewController alloc] init];
     UINavigationController *firstNav = [[UINavigationController alloc] initWithRootViewController:firstVC];
     firstVC.title = @"Trade";
     firstVC.tabBarItem.image = [UIImage imageNamed:@"home_icon"];

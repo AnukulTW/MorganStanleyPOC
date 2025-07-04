@@ -5,20 +5,20 @@
 //  Created by Anukul Bhatnagar on 03/07/25.
 //
 
-#import "ViewController.h"
+#import "TradeViewController.h"
 #import "SocketConnectionManager.h"
 #import "NetworkConnectionManager.h"
 #import "Model/AssetModel.h"
 #import "AssetTableViewCell.h"
 
-@interface ViewController ()<UITableViewDataSource, SocketConnectionManagerDelegate>
+@interface TradeViewController ()<UITableViewDataSource, SocketConnectionManagerDelegate>
 @property (nonatomic, nonnull, strong) SocketConnectionManager *socket;
 @property (nonatomic, nonnull, strong) UITableView *instrumentList;
 @property (nonatomic, nonnull, strong) NSArray *assetList;
 
 @end
 
-@implementation ViewController
+@implementation TradeViewController
 
 - (void)viewDidLoad {
     [super viewDidLoad];
