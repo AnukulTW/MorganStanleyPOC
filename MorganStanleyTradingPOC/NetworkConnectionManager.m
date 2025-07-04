@@ -70,4 +70,24 @@
     [task resume];
 }
 
+- (void)fetchMostActiveStocksWithCompletion: (void (^)(NSData* _Nullable , NSError* _Nullable))completion {
+    NSURL *baseURL = [[NSURL alloc]initWithString: @"https://data.alpaca.markets/v1beta1/screener/stocks/most-actives"];
+    NSURLComponents *components = [NSURLComponents componentsWithURL:baseURL resolvingAgainstBaseURL:NO];
+    NSURLQueryItem *queryItem = [NSURLQueryItem queryItemWithName:@"by" value: @"volume"];
+    components.queryItems = @[queryItem];
+    NSURL *finalURL = components.URL;
+    NSMutableURLRequest *request = [[NSMutableURLRequest alloc]initWithURL:finalURL];
+    [request setHTTPMethod:@"GET"];
+    [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
+    [request setValue:@"PKYZ8FLRID2JGVKBLDJA" forHTTPHeaderField:@"APCA-API-KEY-ID"];
+    [request setValue:@"ECVgORFsR9EunOvZrSBqmSgz9VzPHOJqTc9C2g0H" forHTTPHeaderField:@"APCA-API-SECRET-KEY"];
+    
+    NSURLSessionDataTask *task = [_urlSession dataTaskWithRequest: request
+                                                completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+        completion(data, error);
+    }];
+    
+    [task resume];
+}
+
 @end
