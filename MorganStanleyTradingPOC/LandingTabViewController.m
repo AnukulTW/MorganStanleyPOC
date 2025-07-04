@@ -9,6 +9,7 @@
 #import "TradeViewController.h"
 #import "NewsListViewController.h"
 #import "MarketViewController.h"
+#import "MorganStanleyTradingPOC-Swift.h"
 
 @implementation LandingTabViewController
 
@@ -22,18 +23,19 @@
     firstVC.tabBarItem.image = [UIImage imageNamed:@"home_icon"];
 
     // Create second view controller
-    NewsListViewController *secondVC = [[NewsListViewController alloc] init];
-    UINavigationController *secondNav = [[UINavigationController alloc] initWithRootViewController:secondVC];
-    secondVC.title = @"News";
-    secondVC.tabBarItem.image = [UIImage imageNamed:@"settings_icon"];
-
     MarketViewController *marketVC = [[MarketViewController alloc] init];
     UINavigationController *marketNav = [[UINavigationController alloc] initWithRootViewController:marketVC];
     marketVC.title = @"Market";
     marketVC.tabBarItem.image = [UIImage imageNamed:@"settings_icon"];
     
+    [NewsFeedCoordinator makeNewsFeedViewControllerWithCompletion:^(UIViewController * _Nonnull viewController) {
+        UINavigationController *secondNav = [[UINavigationController alloc] initWithRootViewController:viewController];
+        viewController.tabBarItem.image = [UIImage imageNamed:@"settings_icon"];
+        viewController.title = @"News";
+        self.viewControllers = @[firstNav, secondNav, marketNav];
+    }];
     // Assign view controllers to tab bar
-    self.viewControllers = @[firstNav, secondNav, marketNav];
+    
 
     // Optional: Customize appearance
     self.tabBar.tintColor = [UIColor systemBlueColor];
