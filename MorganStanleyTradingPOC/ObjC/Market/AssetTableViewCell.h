@@ -6,7 +6,7 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "Model/AssetModel.h"
+#import "AssetModel.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

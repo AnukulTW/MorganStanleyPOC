@@ -6,7 +6,7 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "Model/AssetQuoteModel.h"
+#import "AssetQuoteModel.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

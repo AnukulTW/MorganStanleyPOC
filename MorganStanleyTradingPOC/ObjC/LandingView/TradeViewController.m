@@ -8,8 +8,8 @@
 #import "TradeViewController.h"
 #import "SocketConnectionManager.h"
 #import "NetworkConnectionManager.h"
-#import "Model/AssetModel.h"
-#import "Model/AssetQuoteModel.h"
+#import "AssetModel.h"
+#import "AssetQuoteModel.h"
 #import "AssetTableViewCell.h"
 #import "MarketAssetClient.h"
 #import <MorganStanleyTradingPOC-Swift.h>

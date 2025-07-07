@@ -7,8 +7,8 @@
 
 #import "MarketAssetClient.h"
 #import <Foundation/Foundation.h>
-#import "Model/AssetModel.h"
-#import "Model/AssetQuoteModel.h"
+#import "AssetModel.h"
+#import "AssetQuoteModel.h"
 #import "MorganStanleyTradingPOC-Swift.h"
 #import "NetworkManaging.h"
 #import "AssetQuoteModel.h"
