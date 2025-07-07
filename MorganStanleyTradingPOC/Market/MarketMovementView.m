@@ -21,6 +21,7 @@
     if (self) {
         [self setupUIComponents];
         [self layoutContraints];
+        self.backgroundColor = [UIColor redColor];
     }
     return self;
 }

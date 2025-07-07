@@ -21,10 +21,10 @@
     [self.view addSubview:_topMovers];
     [NSLayoutConstraint activateConstraints: @[
         [_topMovers.leadingAnchor constraintEqualToAnchor: self.view.safeAreaLayoutGuide.leadingAnchor
-                                                 constant: 10],
+                                                 constant: 0],
         [_topMovers.topAnchor constraintEqualToAnchor: self.view.safeAreaLayoutGuide.topAnchor],
         [_topMovers.trailingAnchor constraintEqualToAnchor: self.view.safeAreaLayoutGuide.trailingAnchor
-                                                  constant: -10]
+                                                  constant: 0]
     ]];
 }
 
