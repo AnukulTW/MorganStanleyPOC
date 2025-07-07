@@ -51,9 +51,13 @@
     NSArray *topGainers = markerMovers[@"gainers"];
     NSArray *topThreeGainers = [topGainers subarrayWithRange: NSMakeRange(0, 3)];
     
+    NSArray *topLosers = markerMovers[@"losers"];
+    NSArray *topThreeLosers = [topLosers subarrayWithRange: NSMakeRange(0, 3)];
+    
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         dispatch_async(dispatch_get_main_queue(),^ {
-            [weakSelf.topMovers configureMarketMovers: topThreeGainers];
+            [weakSelf.topMovers configureMarketMovers:topThreeGainers
+                                            topLosers:topThreeLosers];
         });
     });
 }

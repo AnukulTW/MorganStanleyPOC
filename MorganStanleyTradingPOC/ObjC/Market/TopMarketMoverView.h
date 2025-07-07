@@ -11,7 +11,8 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @interface TopMarketMoverView : UIView
-- (void)configureMarketMovers:(NSArray<MarketMoverModel *> *)marketMover;
+- (void)configureMarketMovers:(NSArray<MarketMoverModel *> *)topGainers
+                    topLosers:(NSArray<MarketMoverModel *> *) topLosers;
 @end
 
 NS_ASSUME_NONNULL_END
