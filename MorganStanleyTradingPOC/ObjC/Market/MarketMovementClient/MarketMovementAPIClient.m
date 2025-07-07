@@ -65,7 +65,7 @@
     [task resume];
 }
 
-- (void)fetchActiveStocks:(void (^)(NSMutableDictionary<NSString* ,NSArray<MarketMoverModel*>* >* _Nullable , NSError* _Nullable))completion {
+- (void)fetchActiveStocks:(void (^)(NSArray<ActiveStockModel*>*  _Nullable, NSError* _Nullable))completion {
     NSURL *baseURL = [[NSURL alloc]initWithString: @"https://data.alpaca.markets/v1beta1/screener/stocks/most-actives"];
     NSURLComponents *components = [NSURLComponents componentsWithURL:baseURL resolvingAgainstBaseURL:NO];
     NSURLQueryItem *responseCountQueryItem = [NSURLQueryItem queryItemWithName:@"top"
@@ -85,19 +85,19 @@
                                                 completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
         
         
-        NSMutableDictionary *marketMovers = [[NSMutableDictionary alloc]init];
-        
+        NSArray *mostActiveStocks = [[NSArray alloc]init];
         if(data != NULL) {
             NSError *decodingError;
             NSDictionary *responseDictionary = [NSJSONSerialization JSONObjectWithData: data options: 0 error: &decodingError];
             
             if(responseDictionary[@"most_actives"] != NULL) {
                 NSArray *responseArray = responseDictionary[@"most_actives"];
-                NSArray *mostActiveStocks = [ActiveStockModel initWithArray:responseArray];
+                mostActiveStocks = [ActiveStockModel initWithArray:responseArray];
             }
         }
+            
+        completion(mostActiveStocks, nil);
         
-        completion(marketMovers, error);
     }];
     
     [task resume];

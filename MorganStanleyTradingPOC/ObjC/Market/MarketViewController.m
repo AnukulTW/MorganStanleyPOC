@@ -7,12 +7,13 @@
 
 #import "MarketViewController.h"
 #import "MarketMoverView.h"
+#import "ActiveStockView.h"
 #import "MarketMovementClient/MarketMovementAPIClient.h"
 
 @interface MarketViewController ()<MarketMoverActionDelegate>
 @property (nonatomic, nonnull ,strong) MarketMoverView *marketMoverView;
+@property (nonatomic, nonnull ,strong) ActiveStockView *stockView;
 @property (nonatomic, nonnull ,strong) MarketMovementAPIClient *client;
-
 @property (nonatomic, strong) UIScrollView *scrollView;
 @property (nonatomic, strong) UIView *scrollContentView;
 
@@ -22,19 +23,16 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    [self setupTopMovers];
     
     _client = [[MarketMovementAPIClient alloc]init];
     
     [_client fetchTopMarketMovers:^(NSMutableDictionary<NSString *,NSArray<MarketMoverModel *> *> * _Nullable marketMovers, NSError * _Nullable error) {
-       
-        
         [self displayTopThreeGainers: marketMovers];
-        
     }];
+  
     
-    [_client fetchActiveStocks:^(NSMutableDictionary<NSString *,NSArray<MarketMoverModel *> *> * _Nullable, NSError * _Nullable) {
-        
+    [_client fetchActiveStocks:^(NSArray<ActiveStockModel *> * _Nullable activeStocks, NSError * _Nullable) {
+        [self displayTopThreeActiveStocks: activeStocks];
     }];
     
     [self setupUIComponents];
@@ -43,6 +41,8 @@
 }
 
 - (void)setupUIComponents {
+    [self setupTopMovers];
+    [self setupActiveStock];
     [self setupScrollView];
     [self setupScrollContentView];
 }
@@ -50,7 +50,7 @@
 - (void)setupScrollView {
     _scrollView = [[UIScrollView alloc]init];
     _scrollView.translatesAutoresizingMaskIntoConstraints = NO;
-    _scrollView.backgroundColor = [UIColor grayColor];
+    _scrollView.backgroundColor = [UIColor lightGrayColor];
 }
 
 - (void)setupScrollContentView {
@@ -64,6 +64,7 @@
     [_scrollView addSubview: _scrollContentView];
     
     [_scrollContentView addSubview: _marketMoverView];
+    [_scrollContentView addSubview: _stockView];
     
     [NSLayoutConstraint activateConstraints:@[
         [_scrollView.topAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.topAnchor],
@@ -89,13 +90,23 @@
         [_marketMoverView.trailingAnchor constraintEqualToAnchor: _scrollContentView.trailingAnchor]
     ]];
     
+    [NSLayoutConstraint activateConstraints: @[
+        [_stockView.leadingAnchor constraintEqualToAnchor: _scrollContentView.leadingAnchor],
+        [_stockView.topAnchor constraintEqualToAnchor: _marketMoverView.bottomAnchor constant: 20.0],
+        [_stockView.trailingAnchor constraintEqualToAnchor: _scrollContentView.trailingAnchor]
+    ]];
+    
 }
-
 
 - (void)setupTopMovers {
     _marketMoverView = [[MarketMoverView alloc]init];
     _marketMoverView.translatesAutoresizingMaskIntoConstraints = NO;
     _marketMoverView.marketMoverDelegate = self;
+}
+
+- (void)setupActiveStock {
+    _stockView = [[ActiveStockView alloc]init];
+    _stockView.translatesAutoresizingMaskIntoConstraints = NO;
 }
 
 - (void)displayTopThreeGainers:(NSDictionary *)markerMovers {
@@ -115,7 +126,19 @@
     });
 }
 
-- (void)viewAllMarketMovers { 
+- (void)displayTopThreeActiveStocks:(NSArray *)activeStocks {
+    __weak typeof(self) weakSelf = self;
+    
+    NSArray *topThreeActiveStocks = [activeStocks subarrayWithRange: NSMakeRange(0, 3)];
+    
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        dispatch_async(dispatch_get_main_queue(),^ {
+            [weakSelf.stockView configureStockView: topThreeActiveStocks];
+        });
+    });
+}
+
+- (void)viewAllMarketMovers {
     
 }
 

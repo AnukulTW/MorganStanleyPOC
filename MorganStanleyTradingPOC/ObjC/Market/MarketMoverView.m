@@ -59,7 +59,7 @@
     _topGainerLabel.translatesAutoresizingMaskIntoConstraints = NO;
     _topGainerLabel.text = @"Top Stock Gainer";
     _topGainerLabel.textColor = [UIColor blackColor];
-    _topGainerLabel.font = [UIFont systemFontOfSize: 16.0];
+    _topGainerLabel.font = [UIFont boldSystemFontOfSize: 16.0];
 }
 
 - (void)setupSeparatorView {
@@ -73,7 +73,7 @@
     _topLosersLabel.translatesAutoresizingMaskIntoConstraints = NO;
     _topLosersLabel.text = @"Top Stock Losers";
     _topLosersLabel.textColor = [UIColor blackColor];
-    _topLosersLabel.font = [UIFont systemFontOfSize: 16.0];
+    _topLosersLabel.font = [UIFont boldSystemFontOfSize: 16.0];
 }
 
 - (void)setupContentStackView {
