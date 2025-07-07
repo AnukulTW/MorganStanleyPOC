@@ -11,7 +11,8 @@
 @interface TopMarketMoverView()
 @property (nonatomic, nonnull ,strong) UIStackView *contentStackView;
 @property (nonatomic, assign) int counter;
-@property (nonatomic, nonnull ,strong) UIView *containerView;
+@property (nonatomic, nonnull ,strong) UIStackView *marketMoverStackView;
+@property (nonatomic, nonnull ,strong) UILabel *titleLabel;
 
 @end
 
@@ -20,9 +21,8 @@
 - (instancetype)initWithFrame:(CGRect)frame {
     self = [super initWithFrame:frame];
     if (self) {
-        [self setupContentStackView];
+        [self setupUIComponents];
         [self layoutContraints];
-        [self setupMarketMovementViews];
     }
     
     return self;
@@ -30,7 +30,8 @@
 
 
 - (void)setupUIComponents {
-    [self setupContentContainerView];
+    [self setupContentStackView];
+    [self setupMarketMoverStackView];
 }
 
 - (void)setupContentStackView {
@@ -42,14 +43,18 @@
     _contentStackView.spacing = 5.0;
 }
 
-- (void)setupContentContainerView {
-    _containerView = [[UIView alloc]init];
-    //_containerView.translatesAutoresizingMaskIntoConstraints = NO;
+- (void)setupMarketMoverStackView {
+    _marketMoverStackView = [[UIStackView alloc]init];
+    _marketMoverStackView.translatesAutoresizingMaskIntoConstraints = NO;
+    _marketMoverStackView.axis = UILayoutConstraintAxisHorizontal;
+    _marketMoverStackView.alignment = UIStackViewAlignmentLeading;
+    _marketMoverStackView.distribution = UIStackViewDistributionFillEqually;
+    _marketMoverStackView.spacing = 5.0;
 }
-
 - (void)layoutContraints {
     
     [self addSubview: _contentStackView];
+    [_contentStackView addArrangedSubview: _marketMoverStackView];
     
     [NSLayoutConstraint activateConstraints: @[
         [_contentStackView.leadingAnchor constraintEqualToAnchor: self.leadingAnchor constant: 12.0],
@@ -59,57 +64,20 @@
     ]];
 }
 
-- (void)setupMarketMovementViews {
-    NSUInteger interSpacing = 5;
-    NSUInteger leadingSpacing = 10;
-    NSUInteger trailingSpacing = 10;
-    NSUInteger itemRowSpacing = 10;
-    NSUInteger itemHeight = 80;
+- (void)configureMarketMovers:(NSArray<MarketMoverModel *> *)marketMover {
     
-    
-    NSMutableArray *contentViewArray = [[NSMutableArray alloc]init];
-    for(int i =0; i<6; i ++) {
-        MarketMovementView *view = [[MarketMovementView alloc]init];
-        view.translatesAutoresizingMaskIntoConstraints = NO;
-        [contentViewArray addObject: view];
-        
-        if((i % 3 == 2 && i > 0) || i == 5) {
-            UIStackView *stackView = [self createNewHStackView];
-            [contentViewArray enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-                [stackView addArrangedSubview: obj];
-            }];
-            
-            [_contentStackView addArrangedSubview: stackView];
-            [contentViewArray removeAllObjects];
-        }
+    for (UIView *subview in _marketMoverStackView.arrangedSubviews) {
+        [_marketMoverStackView removeArrangedSubview:subview];
+        [subview removeFromSuperview];
     }
     
-    
-//    for(int i =0; i<5; i ++) {
-//        CGRect screenRect = [[UIScreen mainScreen] bounds];
-//        NSUInteger availableWidth = (screenRect.size.width) - leadingSpacing - trailingSpacing - (2 * interSpacing);
-//        NSUInteger itemWidth = availableWidth / 3;
-//        NSUInteger x = leadingSpacing + ((interSpacing + itemWidth) * (i % 3));
-//        NSUInteger y = (itemHeight * (i / 3)) + (itemRowSpacing * (i/3));
-//        
-//        CGRect frame = CGRectMake(x, y, itemWidth , itemHeight);
-//        
-//        MarketMovementView *view = [[MarketMovementView alloc]initWithFrame: frame];
-//        view.backgroundColor = [UIColor redColor];
-//        //view.translatesAutoresizingMaskIntoConstraints = NO;
-//        [_containerView addSubview: view];
-//    }
-}
-
-- (UIStackView *)createNewHStackView {
-    UIStackView *stackView = [[UIStackView alloc]init];
-    stackView.translatesAutoresizingMaskIntoConstraints = NO;
-    stackView.axis = UILayoutConstraintAxisHorizontal;
-    stackView.alignment = UIStackViewAlignmentLeading;
-    stackView.distribution = UIStackViewDistributionFillEqually;
-    stackView.spacing = 5.0;
-
-    return stackView;
+    for(int i=0; i<[marketMover count]; i ++) {
+        MarketMovementView *view = [[MarketMovementView alloc]init];
+        view.translatesAutoresizingMaskIntoConstraints = NO;
+        [_marketMoverStackView addArrangedSubview:view];
+        [view configureWithMarketMover: marketMover[i]];
+    }
 }
 
 @end
+

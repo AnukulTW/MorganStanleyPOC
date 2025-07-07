@@ -46,7 +46,6 @@
     _symbolNameLabel.translatesAutoresizingMaskIntoConstraints = NO;
     _symbolNameLabel.font = [UIFont boldSystemFontOfSize: 16.0];
     _symbolNameLabel.textColor = [UIColor whiteColor];
-    _symbolNameLabel.text = @"AAPL";
 }
 
 - (void)setupPriceLabel {
@@ -54,7 +53,6 @@
     _priceLabel.translatesAutoresizingMaskIntoConstraints = NO;
     _priceLabel.font = [UIFont boldSystemFontOfSize: 14.0];
     _priceLabel.textColor = [UIColor whiteColor];
-    _priceLabel.text = @"123.23";
 }
 
 - (void)setupPercentageChangeLabel {
@@ -62,7 +60,6 @@
     _percentageChangeLabel.translatesAutoresizingMaskIntoConstraints = NO;
     _percentageChangeLabel.font = [UIFont systemFontOfSize: 13.0];
     _percentageChangeLabel.textColor = [UIColor whiteColor];
-    _percentageChangeLabel.text = @"4.8 (-3.45%)";
 }
 
 - (void)setupContentStackView {
@@ -91,6 +88,16 @@
         [_contentStackView .bottomAnchor constraintEqualToAnchor: self.bottomAnchor
                                                         constant: -8.0],
     ]];
+}
+
+- (void)configureWithMarketMover:(MarketMoverModel *)model {
+    _symbolNameLabel.text = model.assetName;
+    _priceLabel.text = [NSString stringWithFormat:@"%.2f", model.price];
+    NSString *percentageChangeString = [[NSString stringWithFormat:@"%.2f", model.percent_change] stringByAppendingFormat: @"%%"];
+    
+    NSString *bracketPercentageString = [NSString stringWithFormat:@"(%@)", percentageChangeString];
+    NSString *valueChangeString = [NSString stringWithFormat:@"%.2f", model.change];
+    _percentageChangeLabel.text = [[valueChangeString stringByAppendingString: @" "] stringByAppendingString: bracketPercentageString];
 }
 
 @end

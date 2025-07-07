@@ -6,11 +6,12 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "Model/MarketMoverModel.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface MarketMovementView : UIView
-
+- (void)configureWithMarketMover:(MarketMoverModel *)model;
 @end
 
 NS_ASSUME_NONNULL_END
