@@ -21,7 +21,6 @@
     if (self) {
         [self setupUIComponents];
         [self layoutContraints];
-        self.backgroundColor = [UIColor redColor];
     }
     return self;
 }
@@ -90,7 +89,7 @@
     ]];
 }
 
-- (void)configureWithMarketMover:(MarketMoverModel *)model {
+- (void)configureWithMarketMover:(MarketMoverModel *)model isTopGainerCard: (BOOL) isTopGainerCard {
     _symbolNameLabel.text = model.assetName;
     _priceLabel.text = [NSString stringWithFormat:@"%.2f", model.price];
     NSString *percentageChangeString = [[NSString stringWithFormat:@"%.2f", model.percent_change] stringByAppendingFormat: @"%%"];
@@ -98,6 +97,8 @@
     NSString *bracketPercentageString = [NSString stringWithFormat:@"(%@)", percentageChangeString];
     NSString *valueChangeString = [NSString stringWithFormat:@"%.2f", model.change];
     _percentageChangeLabel.text = [[valueChangeString stringByAppendingString: @" "] stringByAppendingString: bracketPercentageString];
+    
+    self.backgroundColor = isTopGainerCard ? [UIColor colorWithRed:6.0/255 green:64.0/255 blue:43.0/255 alpha:1.0] : UIColor.redColor;
 }
 
 @end

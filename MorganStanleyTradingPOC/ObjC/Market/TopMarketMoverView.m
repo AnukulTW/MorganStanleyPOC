@@ -47,6 +47,7 @@
     _topGainerLabel.translatesAutoresizingMaskIntoConstraints = NO;
     _topGainerLabel.text = @"Top Market Gainer";
     _topGainerLabel.textColor = [UIColor blackColor];
+    _topGainerLabel.font = [UIFont boldSystemFontOfSize: 20.0];
 }
 
 - (void)setupTopLoserLabel {
@@ -54,6 +55,7 @@
     _topLosersLabel.translatesAutoresizingMaskIntoConstraints = NO;
     _topLosersLabel.text = @"Top Market Losers";
     _topLosersLabel.textColor = [UIColor blackColor];
+    _topLosersLabel.font = [UIFont boldSystemFontOfSize: 20.0];
 }
 
 - (void)setupContentStackView {
@@ -62,7 +64,7 @@
     _contentStackView.axis = UILayoutConstraintAxisVertical;
     _contentStackView.alignment = UIStackViewAlignmentFill;
     _contentStackView.distribution = UIStackViewDistributionFill;
-    _contentStackView.spacing = 5.0;
+    _contentStackView.spacing = 20.0;
 }
 
 - (void)setupTopGainerContentStackView {
@@ -70,7 +72,7 @@
     _marketTopGainerContentStackView.translatesAutoresizingMaskIntoConstraints = NO;
     _marketTopGainerContentStackView.axis = UILayoutConstraintAxisVertical;
     _marketTopGainerContentStackView.alignment = UIStackViewAlignmentLeading;
-    _marketTopGainerContentStackView.spacing = 5.0;
+    _marketTopGainerContentStackView.spacing = 15.0;
 }
 
 - (void)setupTopLoserContentStackView {
@@ -78,7 +80,7 @@
     _marketTopLoserContentStackView.translatesAutoresizingMaskIntoConstraints = NO;
     _marketTopLoserContentStackView.axis = UILayoutConstraintAxisVertical;
     _marketTopLoserContentStackView.alignment = UIStackViewAlignmentLeading;
-    _marketTopLoserContentStackView.spacing = 5.0;
+    _marketTopLoserContentStackView.spacing = 15.0;
 }
 
 - (void)setupTopGainerStackView {
@@ -123,14 +125,19 @@
                     topLosers:(NSArray<MarketMoverModel *> *) topLosers {
     
     [self layoutMarketMoverView: topGainers
-                   forStackView: _marketTopGainerStackView];
+                   forStackView: _marketTopGainerStackView
+                    isTopGainer: true
+    ];
     
     [self layoutMarketMoverView: topLosers
-                   forStackView: _marketTopLoserStackView];
+                   forStackView: _marketTopLoserStackView
+                    isTopGainer: false
+    ];
 }
 
-- (void)layoutMarketMoverView:(NSArray<MarketMoverModel *> *)topGainers
-                 forStackView: (UIStackView *) stackView{
+- (void)layoutMarketMoverView:(NSArray<MarketMoverModel *> *)marketMovers
+                 forStackView: (UIStackView *) stackView
+                  isTopGainer: (BOOL) isTopGainer {
     for (UIView *subview in stackView.arrangedSubviews) {
         if([subview isKindOfClass: MarketMoverCardView.self]) {
             [stackView removeArrangedSubview:subview];
@@ -138,11 +145,12 @@
         }
     }
     
-    for(int i=0; i<[topGainers count]; i ++) {
+    for(int i=0; i<[marketMovers count]; i ++) {
         MarketMoverCardView *view = [[MarketMoverCardView alloc]init];
         view.translatesAutoresizingMaskIntoConstraints = NO;
         [stackView addArrangedSubview:view];
-        [view configureWithMarketMover: topGainers[i]];
+        [view configureWithMarketMover: marketMovers[i]
+                       isTopGainerCard:isTopGainer];
     }
 }
 

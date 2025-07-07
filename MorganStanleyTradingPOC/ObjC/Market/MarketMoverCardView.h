@@ -11,7 +11,8 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @interface MarketMoverCardView : UIView
-- (void)configureWithMarketMover:(MarketMoverModel *)model;
+- (void)configureWithMarketMover:(MarketMoverModel *)model
+                 isTopGainerCard: (BOOL) isTopGainerCard;
 @end
 
 NS_ASSUME_NONNULL_END
