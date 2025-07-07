@@ -6,7 +6,7 @@
 //
 
 #import "TopMarketMoverView.h"
-#import "MarketMovementCardView.h"
+#import "MarketMoverCardView.h"
 
 @interface TopMarketMoverView()
 @property (nonatomic, nonnull ,strong) UIStackView *contentStackView;
@@ -71,7 +71,7 @@
     }
     
     for(int i=0; i<[marketMover count]; i ++) {
-        MarketMovementCardView *view = [[MarketMovementCardView alloc]init];
+        MarketMoverCardView *view = [[MarketMoverCardView alloc]init];
         view.translatesAutoresizingMaskIntoConstraints = NO;
         [_marketMoverStackView addArrangedSubview:view];
         [view configureWithMarketMover: marketMover[i]];

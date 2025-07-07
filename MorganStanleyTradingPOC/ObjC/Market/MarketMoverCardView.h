@@ -10,7 +10,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MarketMovementCardView : UIView
+@interface MarketMoverCardView : UIView
 - (void)configureWithMarketMover:(MarketMoverModel *)model;
 @end
 
