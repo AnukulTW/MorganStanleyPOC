@@ -28,6 +28,7 @@
     if (self) {
         [self setupUIComponents];
         [self layoutContraints];
+        self.backgroundColor = [UIColor whiteColor];
     }
     
     return self;
