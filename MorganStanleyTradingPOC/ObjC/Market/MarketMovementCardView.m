@@ -5,16 +5,16 @@
 //  Created by Anukul Bhatnagar on 04/07/25.
 //
 
-#import "MarketMovementView.h"
+#import "MarketMovementCardView.h"
 
-@interface MarketMovementView()
+@interface MarketMovementCardView()
 @property (nonatomic, nonnull ,strong) UILabel *symbolNameLabel;
 @property (nonatomic, nonnull ,strong) UILabel *priceLabel;
 @property (nonatomic, nonnull ,strong) UILabel *percentageChangeLabel;
 @property (nonatomic, nonnull ,strong) UIStackView *contentStackView;
 @end
 
-@implementation MarketMovementView
+@implementation MarketMovementCardView
 
 - (instancetype)initWithFrame:(CGRect)frame {
     self = [super initWithFrame:frame];

@@ -6,11 +6,10 @@
 //
 
 #import "TopMarketMoverView.h"
-#import "MarketMovementView.h"
+#import "MarketMovementCardView.h"
 
 @interface TopMarketMoverView()
 @property (nonatomic, nonnull ,strong) UIStackView *contentStackView;
-@property (nonatomic, assign) int counter;
 @property (nonatomic, nonnull ,strong) UIStackView *marketMoverStackView;
 @property (nonatomic, nonnull ,strong) UILabel *titleLabel;
 
@@ -72,7 +71,7 @@
     }
     
     for(int i=0; i<[marketMover count]; i ++) {
-        MarketMovementView *view = [[MarketMovementView alloc]init];
+        MarketMovementCardView *view = [[MarketMovementCardView alloc]init];
         view.translatesAutoresizingMaskIntoConstraints = NO;
         [_marketMoverStackView addArrangedSubview:view];
         [view configureWithMarketMover: marketMover[i]];
