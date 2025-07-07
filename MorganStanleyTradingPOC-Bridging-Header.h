@@ -3,3 +3,4 @@
 //
 
 #import "MarketAssetClient.h"
+#import "NetworkConnectionManager.h"

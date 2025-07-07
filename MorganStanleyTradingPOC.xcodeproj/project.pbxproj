@@ -12,6 +12,7 @@
 
 /* Begin PBXFileReference section */
 		27B81CB866ABF156E51F92FB /* Pods-MorganStanleyTradingPOC.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MorganStanleyTradingPOC.debug.xcconfig"; path = "Target Support Files/Pods-MorganStanleyTradingPOC/Pods-MorganStanleyTradingPOC.debug.xcconfig"; sourceTree = "<group>"; };
+		35B452A62E1B99DD008BBF2A /* MorganStanleyTradingPOC-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MorganStanleyTradingPOC-Bridging-Header.h"; sourceTree = "<group>"; };
 		5DAD93AF838C7F2EBBAC990A /* Pods-MorganStanleyTradingPOC.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MorganStanleyTradingPOC.release.xcconfig"; path = "Target Support Files/Pods-MorganStanleyTradingPOC/Pods-MorganStanleyTradingPOC.release.xcconfig"; sourceTree = "<group>"; };
 		C6533C074ACD680455BCB564 /* libPods-MorganStanleyTradingPOC.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-MorganStanleyTradingPOC.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		E5E1E8D32E165AA5007D9A21 /* MorganStanleyTradingPOC.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MorganStanleyTradingPOC.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -70,6 +71,7 @@
 		E5E1E8CA2E165AA5007D9A21 = {
 			isa = PBXGroup;
 			children = (
+				35B452A62E1B99DD008BBF2A /* MorganStanleyTradingPOC-Bridging-Header.h */,
 				E5E1E8D52E165AA5007D9A21 /* MorganStanleyTradingPOC */,
 				E5E1E8D42E165AA5007D9A21 /* Products */,
 				7B92657024A6D44D44E49D73 /* Pods */,
@@ -199,6 +201,11 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 385BYUX4HZ;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"COCOAPODS=1",
+					"USE_SWIFT_API=1",
+				);
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = MorganStanleyTradingPOC/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -210,10 +217,11 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
+				OTHER_CFLAGS = "-DUSE_SWIFT_API";
 				PRODUCT_BUNDLE_IDENTIFIER = com.anukul.personal.MorganStanleyTradingPOC;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_OBJC_BRIDGING_HEADER = "";
+				SWIFT_OBJC_BRIDGING_HEADER = "MorganStanleyTradingPOC-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_PRECOMPILE_BRIDGING_HEADER = NO;
 				SWIFT_VERSION = 5.0;
@@ -242,10 +250,11 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
+				OTHER_CFLAGS = "-DUSE_SWIFT_API";
 				PRODUCT_BUNDLE_IDENTIFIER = com.anukul.personal.MorganStanleyTradingPOC;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_OBJC_BRIDGING_HEADER = "";
+				SWIFT_OBJC_BRIDGING_HEADER = "MorganStanleyTradingPOC-Bridging-Header.h";
 				SWIFT_PRECOMPILE_BRIDGING_HEADER = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
