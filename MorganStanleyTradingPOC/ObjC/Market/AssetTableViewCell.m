@@ -102,10 +102,14 @@
 
 - (void)configureCell:(AssetModel *)model livePice: (AssetPriceModel *)price {
     _assetName.text = [[model.symbol stringByAppendingString:@" - "] stringByAppendingString: model.name ];
-    NSString *bidPriceString = [NSString stringWithFormat:@"%.2f", price.bidPrice];
-    NSString *askPriceString = [NSString stringWithFormat:@"%.2f", price.askPrice];
+    NSString *bidPriceString = [NSString stringWithFormat:@"%.2f", price.bidPrice.price];
+    NSString *askPriceString = [NSString stringWithFormat:@"%.2f", price.askPrice.price];
     _assetBidPrice.text = [@"Bid Price : " stringByAppendingString: bidPriceString];
     _assetAskPrice.text = [@"Ask Price : " stringByAppendingString: askPriceString];
+    
+    _assetBidPrice.textColor = price.bidPrice.direction == AssetPriceChangeDirectionUp ? [UIColor greenColor] : [UIColor redColor];
+    _assetAskPrice.textColor = price.askPrice.direction == AssetPriceChangeDirectionUp ? [UIColor greenColor] : [UIColor redColor];
+
 }
 
 @end

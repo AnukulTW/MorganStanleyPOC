@@ -64,16 +64,27 @@
            responseDict[@"ap"] != NULL
           ) {
             
-            NSLog(@"Response Dict %@", responseDict);
+            
             NSString *assetSymbol = responseDict[@"S"];
-            NSString *bidPrice = [responseDict[@"bp"] stringValue];
-            NSString *askPrice = [responseDict[@"ap"] stringValue];
+            AssetPriceModel *previousModel = _livePriceDictionary[assetSymbol];
+            
+            Float32 previousBidPrice = previousModel.bidPrice.price;
+            Float32 previousAskPrice = previousModel.askPrice.price;
+            
+            Float32 currentBidPrice = [responseDict[@"bp"] floatValue];
+            Float32 currentAskPrice = [responseDict[@"ap"] floatValue];
+
+            NSUInteger bidPriceDirection = currentBidPrice > previousBidPrice ? 1 : 2;
+            NSUInteger askPriceDirection = currentAskPrice > previousAskPrice ? 1 : 2;
             
             AssetPriceModel *priceModel = [[AssetPriceModel alloc]initWithQuoteDictionary: @{
-                @"bp": bidPrice,
-                @"ap": askPrice
+                @"bidPrice": @(currentBidPrice),
+                @"askPrice": @(currentAskPrice),
+                @"bidPriceDirection": @(bidPriceDirection),
+                @"askPriceDirection": @(askPriceDirection)
             }];
             
+            NSLog(@"Response Dictionary %@", responseDict);
             _livePriceDictionary[assetSymbol] = priceModel;
             
             [_connectionDelegate didReceivePrice:priceModel forAsset:assetSymbol];
@@ -85,13 +96,18 @@
     for(AssetQuoteModel * assetQuote in assetQuoteArray) {
         NSString *assetName = assetQuote.assetName;
         if(_livePriceDictionary[assetName] == NULL) {
-            NSString *askPrice = [NSString stringWithFormat:@"%.2f", assetQuote.askPrice];
-            NSString *bidPrice = [NSString stringWithFormat:@"%.2f", assetQuote.bidPrice];
-
-            _livePriceDictionary[assetName] = [[AssetPriceModel alloc]initWithQuoteDictionary: @{
-                @"bp": bidPrice,
-                @"ap": askPrice
+           
+            NSUInteger bidPriceDirection = 0;
+            NSUInteger askPriceDirection = 0;
+            
+            AssetPriceModel *priceModel = [[AssetPriceModel alloc]initWithQuoteDictionary: @{
+                @"bidPrice": @(assetQuote.bidPrice),
+                @"askPrice": @(assetQuote.askPrice),
+                @"bidPriceDirection": @(bidPriceDirection),
+                @"askPriceDirection": @(askPriceDirection)
             }];
+            
+            _livePriceDictionary[assetName] = priceModel;
         }
     }
 }

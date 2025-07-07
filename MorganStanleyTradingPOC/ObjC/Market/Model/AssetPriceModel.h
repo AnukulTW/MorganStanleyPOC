@@ -6,12 +6,13 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "PriceModel.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface AssetPriceModel : NSObject
-@property(nonatomic, assign) Float32 bidPrice;
-@property(nonatomic, assign) Float32 askPrice;
+@property(nonatomic, nonnull, strong,) PriceModel *bidPrice;
+@property(nonatomic, nonnull, strong,) PriceModel *askPrice;
 
 - (instancetype)initWithQuoteDictionary: (NSDictionary*) dict;
 

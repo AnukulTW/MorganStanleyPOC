@@ -12,8 +12,14 @@
 - (instancetype)initWithQuoteDictionary: (NSDictionary*) dict {
     self = [super init];
     if (self) {
-        _bidPrice = [dict[@"bp"] floatValue];
-        _askPrice = [dict[@"ap"] floatValue];
+        _bidPrice = [[PriceModel alloc]initWithDictionary: @{
+            @"price": dict[@"bidPrice"],
+            @"priceDirection": dict[@"bidPriceDirection"]
+        }];
+        _askPrice = [[PriceModel alloc]initWithDictionary: @{
+            @"price": dict[@"askPrice"],
+            @"priceDirection": dict[@"askPriceDirection"]
+        }];
     }
     return self;
 }
