@@ -33,6 +33,10 @@
         
     }];
     
+    [_client fetchActiveStocks:^(NSMutableDictionary<NSString *,NSArray<MarketMoverModel *> *> * _Nullable, NSError * _Nullable) {
+        
+    }];
+    
     [self setupUIComponents];
     [self layoutContraints];
     

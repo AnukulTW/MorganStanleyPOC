@@ -7,11 +7,13 @@
 
 #import <Foundation/Foundation.h>
 #import "MarketMoverModel.h"
+#import "ActiveStockModel.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface MarketMovementAPIClient : NSObject
 - (void)fetchTopMarketMovers:(void (^)(NSMutableDictionary<NSString* ,NSArray<MarketMoverModel*>* >* _Nullable , NSError* _Nullable))completion;
+- (void)fetchActiveStocks:(void (^)(NSMutableDictionary<NSString* ,NSArray<MarketMoverModel*>* >* _Nullable , NSError* _Nullable))completion;
 @end
 
 NS_ASSUME_NONNULL_END

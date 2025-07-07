@@ -48,7 +48,6 @@
             
             if(responseDictionary[@"gainers"] != NULL) {
                 NSArray *topGainResponse = responseDictionary[@"gainers"];
-                //NSArray *topGainers = Market
                 NSArray *topGainers = [MarketMoverModel initWithArray: topGainResponse];
                 marketMovers[@"gainers"] = topGainers;
             }
@@ -64,7 +63,44 @@
     }];
     
     [task resume];
+}
+
+- (void)fetchActiveStocks:(void (^)(NSMutableDictionary<NSString* ,NSArray<MarketMoverModel*>* >* _Nullable , NSError* _Nullable))completion {
+    NSURL *baseURL = [[NSURL alloc]initWithString: @"https://data.alpaca.markets/v1beta1/screener/stocks/most-actives"];
+    NSURLComponents *components = [NSURLComponents componentsWithURL:baseURL resolvingAgainstBaseURL:NO];
+    NSURLQueryItem *responseCountQueryItem = [NSURLQueryItem queryItemWithName:@"top"
+                                                                         value: @"20"];
+    NSURLQueryItem *responseByQueryItem = [NSURLQueryItem queryItemWithName:@"by"
+                                                                         value: @"volume"];
+    components.queryItems = @[responseCountQueryItem, responseByQueryItem];
+    NSURL *finalURL = components.URL;
     
+    NSMutableURLRequest *request = [[NSMutableURLRequest alloc]initWithURL:finalURL];
+    [request setHTTPMethod:@"GET"];
+    [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
+    [request setValue:@"PKYZ8FLRID2JGVKBLDJA" forHTTPHeaderField:@"APCA-API-KEY-ID"];
+    [request setValue:@"ECVgORFsR9EunOvZrSBqmSgz9VzPHOJqTc9C2g0H" forHTTPHeaderField:@"APCA-API-SECRET-KEY"];
+    
+    NSURLSessionDataTask *task = [_urlSession dataTaskWithRequest: request
+                                                completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+        
+        
+        NSMutableDictionary *marketMovers = [[NSMutableDictionary alloc]init];
+        
+        if(data != NULL) {
+            NSError *decodingError;
+            NSDictionary *responseDictionary = [NSJSONSerialization JSONObjectWithData: data options: 0 error: &decodingError];
+            
+            if(responseDictionary[@"most_actives"] != NULL) {
+                NSArray *responseArray = responseDictionary[@"most_actives"];
+                NSArray *mostActiveStocks = [ActiveStockModel initWithArray:responseArray];
+            }
+        }
+        
+        completion(marketMovers, error);
+    }];
+    
+    [task resume];
 }
 
 @end
