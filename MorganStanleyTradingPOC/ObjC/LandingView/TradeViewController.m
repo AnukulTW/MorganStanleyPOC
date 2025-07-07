@@ -68,7 +68,7 @@
                                                                forIndexPath:indexPath];
     
     AssetModel *model = _assetList[indexPath.row];
-    NSString *livePrice = [_socket fetchPrice: model.symbol];
+    AssetPriceModel *livePrice = [_socket fetchPrice: model.symbol];
     [cell configureCell: model livePice: livePrice];
     return cell;
 }
@@ -126,15 +126,15 @@
     [_socket subscribeAssets:assets];
 }
 
-- (void)didReceivePrice:(NSString *)price forAsset:(NSString *)asset {
+- (void)didReceivePrice:(AssetPriceModel *)priceModel forAsset:(NSString *)asset {
     dispatch_async(dispatch_get_main_queue(), ^{
         // Code here runs on the main thread
         // Safe to update UI
-        [self updateUIForAsset:asset withPrice:price];
+        [self updateUIForAsset:priceModel forAsset:asset];
     });
 }
 
-- (void)updateUIForAsset:(NSString *)asset withPrice:(NSString *)price {
+- (void)updateUIForAsset:(AssetPriceModel *)priceModel forAsset:(NSString *)asset {
     NSArray<NSIndexPath *> *visibleIndexPaths = [self.instrumentList indexPathsForVisibleRows];
     
     for (NSIndexPath *indexPath in visibleIndexPaths) {
@@ -147,3 +147,5 @@
 }
 
 @end
+
+

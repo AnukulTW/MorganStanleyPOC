@@ -8,9 +8,10 @@
 #import "SocketConnectionManager.h"
 #import <SocketRocket/SRWebSocket.h>
 
+
 @interface SocketConnectionManager()<SRWebSocketDelegate>
 @property (strong, nonatomic) SRWebSocket *webSocket;
-@property (strong, nonatomic, nonnull) NSMutableDictionary* livePriceDictionary;
+@property (strong, nonatomic, nonnull) NSMutableDictionary <NSString *, AssetPriceModel*>* livePriceDictionary;
 @end
 
 @implementation SocketConnectionManager
@@ -55,11 +56,27 @@
     NSDictionary* responseDict = responseArray.lastObject;
     if(responseDict != NULL) {
         NSArray<NSString*> *keys = responseDict.allKeys;
-        if([keys containsObject: @"S"] && [keys containsObject: @"p"] && responseDict[@"p"] != NULL && responseDict[@"S"] != NULL) {
+        if([keys containsObject: @"S"] &&
+           [keys containsObject: @"bp"] &&
+           [keys containsObject: @"ap"] &&
+           responseDict[@"S"] != NULL &&
+           responseDict[@"bp"] != NULL &&
+           responseDict[@"ap"] != NULL
+          ) {
+            
+            NSLog(@"Response Dict %@", responseDict);
             NSString *assetSymbol = responseDict[@"S"];
-            NSString *price = [responseDict[@"p"] stringValue];
-            _livePriceDictionary[assetSymbol] = price;
-            [_connectionDelegate didReceivePrice:price forAsset:assetSymbol];
+            NSString *bidPrice = [responseDict[@"bp"] stringValue];
+            NSString *askPrice = [responseDict[@"ap"] stringValue];
+            
+            AssetPriceModel *priceModel = [[AssetPriceModel alloc]initWithQuoteDictionary: @{
+                @"bp": bidPrice,
+                @"ap": askPrice
+            }];
+            
+            _livePriceDictionary[assetSymbol] = priceModel;
+            
+            [_connectionDelegate didReceivePrice:priceModel forAsset:assetSymbol];
         }
     }
 }
@@ -68,12 +85,18 @@
     for(AssetQuoteModel * assetQuote in assetQuoteArray) {
         NSString *assetName = assetQuote.assetName;
         if(_livePriceDictionary[assetName] == NULL) {
-            _livePriceDictionary[assetName] = [NSString stringWithFormat:@"%.2f", assetQuote.askPrice];
+            NSString *askPrice = [NSString stringWithFormat:@"%.2f", assetQuote.askPrice];
+            NSString *bidPrice = [NSString stringWithFormat:@"%.2f", assetQuote.bidPrice];
+
+            _livePriceDictionary[assetName] = [[AssetPriceModel alloc]initWithQuoteDictionary: @{
+                @"bp": bidPrice,
+                @"ap": askPrice
+            }];
         }
     }
 }
 
-- (NSString *)fetchPrice:(NSString *)assetName {
+- (AssetPriceModel *)fetchPrice:(NSString *)assetName {
     return  _livePriceDictionary[assetName];
 }
 
@@ -94,7 +117,7 @@
 }
 
 - (void)subscribeAssets:(NSArray<NSString *>*)assets {
-    NSDictionary *authPayload = @{@"action": @"subscribe", @"trades": @[@"AMZN", @"AAPL",@"MLGO", @"INTC"]};
+    NSDictionary *authPayload = @{@"action": @"subscribe", @"quotes": @[@"AMZN", @"AAPL",@"MLGO", @"INTC"]};
     NSData *jsonData = [NSJSONSerialization dataWithJSONObject:authPayload options:0 error:nil];
     NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
     [self sendMessage:jsonString];
