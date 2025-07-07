@@ -15,7 +15,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface TopMarketMoverView : UIView
+@interface MarketMoverView : UIView
 @property (nonatomic, weak) id<MarketMoverActionDelegate> marketMoverDelegate;
 
 - (void)configureMarketMovers:(NSArray<MarketMoverModel *> *)topGainers

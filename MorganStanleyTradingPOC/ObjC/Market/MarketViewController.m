@@ -6,11 +6,11 @@
 //
 
 #import "MarketViewController.h"
-#import "TopMarketMoverView.h"
+#import "MarketMoverView.h"
 #import "MarketMovementClient/MarketMovementAPIClient.h"
 
 @interface MarketViewController ()<MarketMoverActionDelegate>
-@property (nonatomic, nonnull ,strong) TopMarketMoverView *topMovers;
+@property (nonatomic, nonnull ,strong) MarketMoverView *marketMoverView;
 @property (nonatomic, nonnull ,strong) MarketMovementAPIClient *client;
 
 @property (nonatomic, strong) UIScrollView *scrollView;
@@ -59,7 +59,7 @@
     [self.view addSubview: _scrollView];
     [_scrollView addSubview: _scrollContentView];
     
-    [_scrollContentView addSubview: _topMovers];
+    [_scrollContentView addSubview: _marketMoverView];
     
     [NSLayoutConstraint activateConstraints:@[
         [_scrollView.topAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.topAnchor],
@@ -80,18 +80,18 @@
     ]];
     
     [NSLayoutConstraint activateConstraints: @[
-        [_topMovers.leadingAnchor constraintEqualToAnchor: _scrollContentView.leadingAnchor],
-        [_topMovers.topAnchor constraintEqualToAnchor: _scrollContentView.topAnchor],
-        [_topMovers.trailingAnchor constraintEqualToAnchor: _scrollContentView.trailingAnchor]
+        [_marketMoverView.leadingAnchor constraintEqualToAnchor: _scrollContentView.leadingAnchor],
+        [_marketMoverView.topAnchor constraintEqualToAnchor: _scrollContentView.topAnchor],
+        [_marketMoverView.trailingAnchor constraintEqualToAnchor: _scrollContentView.trailingAnchor]
     ]];
     
 }
 
 
 - (void)setupTopMovers {
-    _topMovers = [[TopMarketMoverView alloc]init];
-    _topMovers.translatesAutoresizingMaskIntoConstraints = NO;
-    _topMovers.marketMoverDelegate = self;
+    _marketMoverView = [[MarketMoverView alloc]init];
+    _marketMoverView.translatesAutoresizingMaskIntoConstraints = NO;
+    _marketMoverView.marketMoverDelegate = self;
 }
 
 - (void)displayTopThreeGainers:(NSDictionary *)markerMovers {
@@ -105,7 +105,7 @@
     
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         dispatch_async(dispatch_get_main_queue(),^ {
-            [weakSelf.topMovers configureMarketMovers:topThreeGainers
+            [weakSelf.marketMoverView configureMarketMovers:topThreeGainers
                                             topLosers:topThreeLosers];
         });
     });

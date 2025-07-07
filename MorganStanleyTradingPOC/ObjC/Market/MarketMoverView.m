@@ -5,10 +5,10 @@
 //  Created by Anukul Bhatnagar on 04/07/25.
 //
 
-#import "TopMarketMoverView.h"
+#import "MarketMoverView.h"
 #import "MarketMoverCardView.h"
 
-@interface TopMarketMoverView()
+@interface MarketMoverView()
 @property (nonatomic, nonnull ,strong) UIStackView *contentStackView;
 @property (nonatomic, nonnull ,strong) UIStackView *marketTopGainerContentStackView;
 @property (nonatomic, nonnull ,strong) UIStackView *marketTopLoserContentStackView;
@@ -21,7 +21,7 @@
 
 @end
 
-@implementation TopMarketMoverView
+@implementation MarketMoverView
 
 - (instancetype)initWithFrame:(CGRect)frame {
     self = [super initWithFrame:frame];
