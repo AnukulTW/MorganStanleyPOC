@@ -22,11 +22,12 @@
 }
 
 
-- (void)fetchTopMarketMovers:(void (^)(NSData* _Nullable , NSError* _Nullable))completion {
-    NSURL *baseURL = [[NSURL alloc]initWithString: @"https://paper-api.alpaca.markets/v2/assets"];
+- (void)fetchTopMarketMovers:(void (^)(NSMutableDictionary<NSString* ,NSArray<MarketMoverModel*>* >* _Nullable , NSError* _Nullable))completion {
+    NSURL *baseURL = [[NSURL alloc]initWithString: @"https://data.alpaca.markets/v1beta1/screener/stocks/movers"];
     NSURLComponents *components = [NSURLComponents componentsWithURL:baseURL resolvingAgainstBaseURL:NO];
-    NSURLQueryItem *queryItem = [NSURLQueryItem queryItemWithName:@"status" value:@"active"];
-    components.queryItems = @[queryItem];
+    NSURLQueryItem *topMoversQueryItem = [NSURLQueryItem queryItemWithName:@"top"
+                                                                     value: @"20"];
+    components.queryItems = @[topMoversQueryItem];
     NSURL *finalURL = components.URL;
     
     NSMutableURLRequest *request = [[NSMutableURLRequest alloc]initWithURL:finalURL];
@@ -37,12 +38,33 @@
     
     NSURLSessionDataTask *task = [_urlSession dataTaskWithRequest: request
                                                 completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
-        completion(data, error);
+        
+        
+        NSMutableDictionary *marketMovers = [[NSMutableDictionary alloc]init];
+        
+        if(data != NULL) {
+            NSError *decodingError;
+            NSDictionary *responseDictionary = [NSJSONSerialization JSONObjectWithData: data options: 0 error: &decodingError];
+            
+            if(responseDictionary[@"gainers"] != NULL) {
+                NSArray *topGainResponse = responseDictionary[@"gainers"];
+                //NSArray *topGainers = Market
+                NSArray *topGainers = [MarketMoverModel initWithArray: topGainResponse];
+                marketMovers[@"gainers"] = topGainers;
+            }
+            
+            if(responseDictionary[@"losers"] != NULL) {
+                NSArray *topGainResponse = responseDictionary[@"losers"];
+                NSArray *topLosers = [MarketMoverModel initWithArray: topGainResponse];
+                marketMovers[@"losers"] = topLosers;
+            }
+        }
+        
+        completion(marketMovers, error);
     }];
     
     [task resume];
     
 }
-
 
 @end
