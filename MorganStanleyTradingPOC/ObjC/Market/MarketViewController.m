@@ -9,7 +9,7 @@
 #import "TopMarketMoverView.h"
 #import "MarketMovementClient/MarketMovementAPIClient.h"
 
-@interface MarketViewController ()
+@interface MarketViewController ()<MarketMoverActionDelegate>
 @property (nonatomic, nonnull ,strong) TopMarketMoverView *topMovers;
 @property (nonatomic, nonnull ,strong) MarketMovementAPIClient *client;
 
@@ -43,6 +43,7 @@
 - (void)setupTopMovers {
     _topMovers = [[TopMarketMoverView alloc]init];
     _topMovers.translatesAutoresizingMaskIntoConstraints = NO;
+    _topMovers.marketMoverDelegate = self;
 }
 
 - (void)displayTopThreeGainers:(NSDictionary *)markerMovers {
@@ -60,6 +61,10 @@
                                             topLosers:topThreeLosers];
         });
     });
+}
+
+- (void)viewAllMarketMovers { 
+    
 }
 
 @end

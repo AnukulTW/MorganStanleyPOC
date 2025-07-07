@@ -12,6 +12,7 @@
 @property (nonatomic, nonnull ,strong) UILabel *priceLabel;
 @property (nonatomic, nonnull ,strong) UILabel *percentageChangeLabel;
 @property (nonatomic, nonnull ,strong) UIStackView *contentStackView;
+
 @end
 
 @implementation MarketMoverCardView
@@ -84,9 +85,10 @@
                                                     constant: 8.0],
         [_contentStackView.trailingAnchor constraintEqualToAnchor: self.trailingAnchor
                                                          constant: -10.0],
-        [_contentStackView .bottomAnchor constraintEqualToAnchor: self.bottomAnchor
-                                                        constant: -8.0],
+        [_contentStackView.bottomAnchor constraintEqualToAnchor: self.bottomAnchor
+                                                       constant: -8.0]
     ]];
+    
 }
 
 - (void)configureWithMarketMover:(MarketMoverModel *)model isTopGainerCard: (BOOL) isTopGainerCard {
@@ -98,7 +100,8 @@
     NSString *valueChangeString = [NSString stringWithFormat:@"%.2f", model.change];
     _percentageChangeLabel.text = [[valueChangeString stringByAppendingString: @" "] stringByAppendingString: bracketPercentageString];
     
-    self.backgroundColor = isTopGainerCard ? [UIColor colorWithRed:6.0/255 green:64.0/255 blue:43.0/255 alpha:1.0] : UIColor.redColor;
+    self.backgroundColor = isTopGainerCard ? [UIColor colorWithRed:0.0/255 green:128.0/255 blue:0.0/255 alpha:1.0] :
+        [UIColor colorWithRed:205.0/255 green: 28.0/255 blue: 24.0/255 alpha:1.0];
 }
 
 @end

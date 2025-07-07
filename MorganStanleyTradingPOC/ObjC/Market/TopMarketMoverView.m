@@ -16,6 +16,8 @@
 @property (nonatomic, nonnull ,strong) UIStackView *marketTopLoserStackView;
 @property (nonatomic, nonnull ,strong) UILabel *topGainerLabel;
 @property (nonatomic, nonnull ,strong) UILabel *topLosersLabel;
+@property (nonatomic, nonnull ,strong) UIView *separatorView;
+@property (nonatomic, nonnull ,strong) UIButton *viewAllMarketMoverButton;
 
 @end
 
@@ -33,6 +35,8 @@
 
 
 - (void)setupUIComponents {
+    [self setupViewAllMarketMoverButton];
+    [self setupSeparatorView];
     [self setupContentStackView];
     [self setupTopGainerContentStackView];
     [self setupTopGainerStackView];
@@ -42,20 +46,33 @@
     [self setupTopLoserLabel];
 }
 
+- (void)setupViewAllMarketMoverButton {
+    _viewAllMarketMoverButton = [[UIButton alloc]init];
+    _viewAllMarketMoverButton.translatesAutoresizingMaskIntoConstraints = NO;
+    [_viewAllMarketMoverButton setTitle: @"View All Market Movers" forState: UIControlStateNormal];
+    [_viewAllMarketMoverButton setTitleColor:[UIColor blueColor] forState: UIControlStateNormal];
+}
+
 - (void)setupTopGainerLabel {
     _topGainerLabel = [[UILabel alloc]init];
     _topGainerLabel.translatesAutoresizingMaskIntoConstraints = NO;
-    _topGainerLabel.text = @"Top Market Gainer";
+    _topGainerLabel.text = @"Top Stock Gainer";
     _topGainerLabel.textColor = [UIColor blackColor];
-    _topGainerLabel.font = [UIFont boldSystemFontOfSize: 20.0];
+    _topGainerLabel.font = [UIFont systemFontOfSize: 16.0];
+}
+
+- (void)setupSeparatorView {
+    _separatorView = [[UIView alloc]init];
+    _separatorView.translatesAutoresizingMaskIntoConstraints = false;
+    _separatorView.backgroundColor = [UIColor grayColor];
 }
 
 - (void)setupTopLoserLabel {
     _topLosersLabel = [[UILabel alloc]init];
     _topLosersLabel.translatesAutoresizingMaskIntoConstraints = NO;
-    _topLosersLabel.text = @"Top Market Losers";
+    _topLosersLabel.text = @"Top Stock Losers";
     _topLosersLabel.textColor = [UIColor blackColor];
-    _topLosersLabel.font = [UIFont boldSystemFontOfSize: 20.0];
+    _topLosersLabel.font = [UIFont systemFontOfSize: 16.0];
 }
 
 - (void)setupContentStackView {
@@ -104,6 +121,9 @@
 - (void)layoutContraints {
     
     [self addSubview: _contentStackView];
+    [self addSubview: _separatorView];
+    [self addSubview: _viewAllMarketMoverButton];
+    
     [_contentStackView addArrangedSubview: _marketTopGainerContentStackView];
     [_contentStackView addArrangedSubview: _marketTopLoserContentStackView];
 
@@ -117,8 +137,25 @@
         [_contentStackView.leadingAnchor constraintEqualToAnchor: self.leadingAnchor constant: 12.0],
         [_contentStackView.topAnchor constraintEqualToAnchor: self.topAnchor constant: 12.0],
         [_contentStackView.trailingAnchor constraintEqualToAnchor: self.trailingAnchor constant: -12.0],
-        [_contentStackView .bottomAnchor constraintEqualToAnchor: self.bottomAnchor],
     ]];
+    
+    [NSLayoutConstraint activateConstraints: @[
+        [_separatorView.leadingAnchor constraintEqualToAnchor: self.leadingAnchor],
+        [_separatorView.topAnchor constraintEqualToAnchor: _contentStackView.bottomAnchor
+                                                    constant: 16.0],
+        [_separatorView.trailingAnchor constraintEqualToAnchor: self.trailingAnchor],
+        [_separatorView.heightAnchor constraintEqualToConstant: 0.5]
+    ]];
+    
+    [NSLayoutConstraint activateConstraints: @[
+        [_viewAllMarketMoverButton.leadingAnchor constraintEqualToAnchor: self.leadingAnchor],
+        [_viewAllMarketMoverButton.topAnchor constraintEqualToAnchor: _separatorView.bottomAnchor
+                                                    constant: 14.0],
+        [_viewAllMarketMoverButton.trailingAnchor constraintEqualToAnchor: self.trailingAnchor],
+        [_viewAllMarketMoverButton.bottomAnchor constraintEqualToAnchor: self.bottomAnchor
+                                                        constant: -8.0],
+    ]];
+
 }
 
 - (void)configureMarketMovers:(NSArray<MarketMoverModel *> *)topGainers
@@ -152,6 +189,10 @@
         [view configureWithMarketMover: marketMovers[i]
                        isTopGainerCard:isTopGainer];
     }
+}
+
+- (void)didTapViewAllMarketMovers {
+    [self.marketMoverDelegate viewAllMarketMovers];
 }
 
 @end
