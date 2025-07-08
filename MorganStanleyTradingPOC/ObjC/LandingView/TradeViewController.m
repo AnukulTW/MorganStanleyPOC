@@ -6,7 +6,7 @@
 //
 
 #import "TradeViewController.h"
-//#import "SocketConnectionManager.h"
+#import "SocketConnectionManager.h"
 #import "NativeSocketConnectionManager.h"
 #import "NetworkConnectionManager.h"
 #import "AssetModel.h"
@@ -33,10 +33,12 @@
     _assetClient = [[MarketAssetClient alloc] initWithNetworkManager:manager];
     _assetClient.requiredSymbol = @[@"AMZN", @"AAPL",/*@"MLGO", @"INTC", @"AMTM", @"ARCA", @"ANAB", @"ABNB"*/];
     _assetList = @[@"EURUSD", @"AUDUSD", @"USDJPY", @"USDCAD", @"GBPUSD", @"EURGBP", @"AUDCAD", @"USDHKD"];
-    //@[@"AMZN", @"AAPL",@"MLGO", @"INTC", @"AMTM", @"ARCA", @"ANAB", @"ABNB"]
     
-    [self openSocketConnection];
-    _controller = [[TradeController alloc]init];
+    // Insert either NativeSocket or SRWebSocket
+    //NativeSocketConnectionManager *socketManager = [[NativeSocketConnectionManager alloc] init];
+    SocketConnectionManager *socketManager = [[SocketConnectionManager alloc] init];
+    
+    _controller = [[TradeController alloc] initWithSocketEnabler:socketManager];
     _controller.handler = self;
     [self fetchLastQuotes];
     [self setupUIComponents];
@@ -65,7 +67,7 @@
 - (void)openSocketConnection {
     _instrumentList.hidden = true;
     [self showActivityIndicatorView];
-    [_socket openSocketConnection];
+    [self.controller startSocket];
 }
 
 - (void)setupTableView {
@@ -105,7 +107,7 @@
     __weak typeof(self) weakSelf = self;
     [_assetClient fetchMarketAssetWithCompletion:^(NSArray<AssetQuoteModel *> * _Nullable result, NSArray<NSString *> * _Nullable list, NSError * _Nullable error) {
             [weakSelf reloadWithAssetList:result];
-            [weakSelf subscribeAssetLivePriceConnection:list];
+        [weakSelf subscribeAssetLivePriceConnection:_assetList];
     }];
 }
 
@@ -124,10 +126,9 @@
     
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         dispatch_async(dispatch_get_main_queue(),^ {
-            [weakSelf.socket updateAssetLastQuote: assetQuoteArray];
+            [weakSelf.controller updateAssetLastQuote: assetQuoteArray];
             [weakSelf hideActivityIndicatorView];
             weakSelf.instrumentList.hidden = false;
-            [weakSelf.controller.handler updateAssetLastQuote: assetQuoteArray];
             [weakSelf.instrumentList reloadData];
         });
     });
@@ -145,7 +146,7 @@
 }
 
 - (void)subscribeAssetLivePriceConnection:(NSArray<NSString *>*)assets {
-    [_socket subscribeAssets: _assetList];
+    [_controller subscribeAssets: assets];
 }
 
 - (void)didReceivePrice:(AssetPriceModel *)priceModel forAsset:(NSString *)asset {

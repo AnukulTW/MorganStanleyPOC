@@ -6,9 +6,8 @@
 //
 
 #import <UIKit/UIKit.h>
-
+#import "SocketConnectionEnabler.h"
 @interface TradeViewController : UIViewController
-
 
 @end
 

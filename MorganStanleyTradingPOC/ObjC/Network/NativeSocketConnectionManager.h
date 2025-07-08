@@ -7,21 +7,10 @@
 
 
 #import <Foundation/Foundation.h>
+#import "SocketConnectionEnabler.h"
 
 NS_ASSUME_NONNULL_BEGIN
-
-@protocol NativeSocketConnectionManagerDelegate <NSObject>
-- (void)didReceiveMessage:(NSString *)message;
-@end
-
-@interface NativeSocketConnectionManager : NSObject
-
-@property (nonatomic, weak) id<NativeSocketConnectionManagerDelegate> connectionDelegate;
-
-- (void)connect;
-- (void)disconnect;
-- (void)sendMessage:(NSString *)message;
-- (void)subscribeAssets:(NSArray<NSString *>*)assets;
+@interface NativeSocketConnectionManager : NSObject <SocketConnectionEnabler,NSURLSessionWebSocketDelegate>
 
 @end
 
