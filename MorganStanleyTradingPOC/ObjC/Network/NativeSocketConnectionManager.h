@@ -21,6 +21,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)connect;
 - (void)disconnect;
 - (void)sendMessage:(NSString *)message;
+- (void)subscribeAssets:(NSArray<NSString *>*)assets;
 
 @end
 
