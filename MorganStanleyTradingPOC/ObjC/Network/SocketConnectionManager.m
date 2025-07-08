@@ -7,6 +7,7 @@
 
 #import "SocketConnectionManager.h"
 #import <SocketRocket/SRWebSocket.h>
+#import "MorganStanleyTradingPOC-Swift.h"
 
 
 @interface SocketConnectionManager()<SRWebSocketDelegate>
@@ -23,18 +24,21 @@
     self = [super init];
     if (self) {
         _socketQueue = dispatch_queue_create("com.yourapp.socketQueue", DISPATCH_QUEUE_SERIAL);
-        _isEnablePrimeAPI = YES;
+        _isEnablePrimeAPI = Constants.isEnablePrimeAPI;
         NSURL *url = [self createURL];
         self.webSocket = [[SRWebSocket alloc] initWithURL:url];
         self.webSocket.delegate = self;
         self.webSocket.delegateDispatchQueue = _socketQueue;
         _livePriceDictionary = [[NSMutableDictionary alloc]init];
-        dispatch_async(_socketQueue, ^{
-            [self.webSocket open];
-        });
-
     }
+    
     return self;
+}
+
+- (void)openSocketConnection {
+    dispatch_async(_socketQueue, ^{
+        [self.webSocket open];
+    });
 }
 
 - (NSString *)assetNameKey {
@@ -98,6 +102,7 @@
 - (void)webSocketDidOpen:(SRWebSocket *)webSocket {
     NSLog(@"WebSocket connected");
     [self authenticateWebSocketConnection];
+    [self.connectionDelegate connectionEstablishSuccess];
 }
 
 - (void)webSocket:(SRWebSocket *)webSocket didReceiveMessage:(id)message {

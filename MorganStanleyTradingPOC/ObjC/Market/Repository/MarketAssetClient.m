@@ -96,11 +96,11 @@
 #pragma mark - Fetch Quotes (Private Methods)
 
 - (void)fetchLastQuotes:(nonnull NSArray<NSString *> *)symbols completion: (void (^)(NSData * _Nullable data, NSError * _Nullable error))completion {
-    NSString *urlString = [NSString stringWithFormat:@"%@%@", Constants.alpacaBaseURL, Constants.latestQuotes];
+    NSString *urlString = [NSString stringWithFormat:@"%@%@", Constants.baseURL, Constants.latestQuotes];
     NSURL *url = [NSURL URLWithString:urlString];
     NSString *commaSeparateQuotes = [symbols componentsJoinedByString: @","];
     NSString *encodedString = [commaSeparateQuotes stringByAddingPercentEncodingWithAllowedCharacters: [NSCharacterSet URLQueryAllowedCharacterSet]];
-    NSDictionary *queryParams = @{ @"symbols": encodedString };
+    NSDictionary *queryParams = @{ @"pairs": encodedString };
     [self.networkManager sendRequestWithURL:url
                                      method:@"GET"
                                 queryParams:queryParams

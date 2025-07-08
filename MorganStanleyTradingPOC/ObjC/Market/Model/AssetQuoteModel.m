@@ -6,6 +6,7 @@
 //
 
 #import "AssetQuoteModel.h"
+#import "MorganStanleyTradingPOC-Swift.h"
 
 @implementation AssetQuoteModel
 
@@ -13,9 +14,13 @@
                                forAsset: (NSString *)asset {
     self = [super init];
     if (self) {
+        
+        NSString *bidPriceKey = [Constants bidPriceKey];
+        NSString *askPriceKey = [Constants askPriceKey];
+
         _assetName = asset;
-        _bidPrice = [dict[@"bp"] floatValue];
-        _askPrice = [dict[@"ap"] floatValue];
+        _bidPrice = [dict[bidPriceKey] floatValue];
+        _askPrice = [dict[askPriceKey] floatValue];
     }
     return self;
 }

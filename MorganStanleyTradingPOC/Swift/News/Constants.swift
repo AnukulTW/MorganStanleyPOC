@@ -12,10 +12,35 @@ let secret = "dCmEKpi6va3jXaG6zgNcugJasgB0SAeH3Gge5swF"
 @objcMembers
 public class Constants: NSObject {
     public static let alpacaBaseURL = "https://data.alpaca.markets/"
+    public static let primeAPIBaseURL = "https://api.primeapi.io/"
+    
     public static let paperApiBaseURL = "https://paper-api.alpaca.markets/"
     public static let apiKey = "PKYGLGZYI3VPE4B05HX0"
     public static let apiSecret = "dCmEKpi6va3jXaG6zgNcugJasgB0SAeH3Gge5swF"
     public static let newsEndPoint = "v1beta1/news"
     public static let marketAsset = "v2/assets"
-    public static let latestQuotes = "v2/stocks/quotes/latest"
+    private static let latestQuotes_Alpaca = "v2/stocks/quotes/latest"
+    private static let latestQuotes_Prime = "fx/quote"
+    
+    public static let isEnablePrimeAPI = true
+    
+    public static var latestQuotes: String {
+        isEnablePrimeAPI ? latestQuotes_Prime : latestQuotes_Alpaca
+    }
+    
+    public static var baseURL: String {
+        isEnablePrimeAPI ? primeAPIBaseURL : alpacaBaseURL
+    }
+    
+    public static var assetNameKey: String {
+        isEnablePrimeAPI ? "sym" : "S"
+    }
+        
+    public static var bidPriceKey: String {
+        isEnablePrimeAPI ? "bid" : "bp"
+    }
+
+    public static var askPriceKey: String {
+        isEnablePrimeAPI ? "ask" : "ap"
+    }
 }
