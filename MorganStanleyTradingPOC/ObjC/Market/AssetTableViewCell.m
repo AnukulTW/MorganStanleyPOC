@@ -65,8 +65,6 @@
         [_assetPriceInfoStack.widthAnchor constraintEqualToAnchor:self.contentView.widthAnchor multiplier: 0.5]
 
     ]];
-    
-    [_assetInfoStack setCustomSpacing:4.0 afterView: _assetBidPrice];
 }
 
 

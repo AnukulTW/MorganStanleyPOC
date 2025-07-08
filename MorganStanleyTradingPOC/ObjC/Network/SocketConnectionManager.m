@@ -120,8 +120,6 @@
                responseDict[@"bid"] != NULL &&
                responseDict[@"ask"] != NULL
                ) {
-                
-                
                 AssetPriceModel *model = [self updatePriceModel:responseDict];
                 _livePriceDictionary[assetSymbol] = model;
                 [_connectionDelegate didReceivePrice: model forAsset:assetSymbol];
@@ -144,7 +142,6 @@
         Float32 currentAskPrice = [responseDict[@"ask"] floatValue];
         
         if(currentAskPrice == previousAskPrice && currentBidPrice == previousBidPrice) {
-            NSLog(@"Return printed");
             return previousModel;
         }
         
@@ -209,7 +206,7 @@
 - (void)subscribeAssets:(NSArray<NSString *>*)assets {
     // NSDictionary *authPayload = @{@"action": @"subscribe", @"quotes": @[@"AMZN", @"AAPL",@"MLGO", @"INTC"]};
     //NSDictionary *authPayload = @{@"action": @"subscribe", @"quotes": @[@"AVAX/USD", @"BTC/USD"]};
-    NSDictionary *authPayload = @{@"op": @"subscribe", @"pairs": assets, @"stream": @"fx"};
+    NSDictionary *authPayload = @{@"op": @"subscribe", @"pairs": assets, @"stream": @"fx1s"};
     NSData *jsonData = [NSJSONSerialization dataWithJSONObject:authPayload options:0 error:nil];
     NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
     [self sendMessage:jsonString];
