@@ -48,7 +48,7 @@
 }
 
 - (void)configureWithPrice: (PriceModel *)model {
-    NSString *priceString = [NSString stringWithFormat:@"%.2f", model.price];
+    NSString *priceString = [NSString stringWithFormat:@"%.5f", model.price];
     _priceLabel.text = priceString;
     _priceLabel.textColor = [UIColor whiteColor];
     self.backgroundColor = model.direction == AssetPriceChangeDirectionUp ? [UIColor greenColor] : [UIColor redColor];

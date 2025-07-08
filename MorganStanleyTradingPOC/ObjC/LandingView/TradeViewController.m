@@ -30,6 +30,7 @@
     NetworkConnectionManager *manager = [[NetworkConnectionManager alloc] initWithAPIKey:Constants.apiKey apiSecret:Constants.apiSecret];
     _assetClient = [[MarketAssetClient alloc] initWithNetworkManager:manager];
     _assetClient.requiredSymbol = @[@"AMZN", @"AAPL",/*@"MLGO", @"INTC", @"AMTM", @"ARCA", @"ANAB", @"ABNB"*/];
+    _assetList = @[@"EURUSD", @"AUDUSD", @"USDJPY", @"USDCAD", @"GBPUSD", @"EURGBP", @"AUDCAD", @"USDHKD"];
     [self fetchLastQuotes];
     [self setupUIComponents];
     [self layoutContraints];
@@ -118,14 +119,14 @@
     
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         dispatch_async(dispatch_get_main_queue(),^ {
-            weakSelf.assetList = @[@"EURUSD", @"AUDUSD", @"USDJPY"]; //newAssetList;
+            //weakSelf.assetList = @[@"EURUSD", @"AUDUSD", @"USDJPY"]; //newAssetList;
             [weakSelf.instrumentList reloadData];
         });
     });
 }
 
 - (void)subscribeAssetLivePriceConnection:(NSArray<NSString *>*)assets {
-    [_socket subscribeAssets: @[@"EURUSD", @"AUDUSD", @"USDJPY"]];
+    [_socket subscribeAssets: _assetList];
 }
 
 - (void)didReceivePrice:(AssetPriceModel *)priceModel forAsset:(NSString *)asset {
@@ -173,7 +174,9 @@
         NSString *assetAtIndex = _assetList[indexPath.row];
         if (assetAtIndex != NULL && [assetAtIndex isEqual: asset]) {
             // Then reload just that row
-            [self.instrumentList reloadRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationNone];
+            //[self.instrumentList reloadRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationNone];
+            AssetTableViewCell *cell = [_instrumentList cellForRowAtIndexPath:indexPath];
+            [cell configureCell:asset livePice: priceModel];
         }
     }
 }

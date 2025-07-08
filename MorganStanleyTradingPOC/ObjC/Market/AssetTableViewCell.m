@@ -54,7 +54,7 @@
         [_assetName.topAnchor constraintEqualToAnchor: self.contentView.topAnchor constant: 8.0],
         //[_assetInfoStack.trailingAnchor constraintEqualToAnchor: self.contentView.trailingAnchor constant: -20],
         [_assetName .bottomAnchor constraintEqualToAnchor: self.contentView.bottomAnchor constant: -8.0],
-        [_assetName.widthAnchor constraintEqualToAnchor:self.contentView.widthAnchor multiplier: 0.6]
+        [_assetName.widthAnchor constraintEqualToAnchor:self.contentView.widthAnchor multiplier: 0.4]
     ]];
     
     [NSLayoutConstraint activateConstraints: @[
@@ -62,7 +62,7 @@
         [_assetPriceInfoStack.topAnchor constraintEqualToAnchor: self.contentView.topAnchor constant: 8.0],
         [_assetPriceInfoStack.trailingAnchor constraintEqualToAnchor: self.contentView.trailingAnchor constant: -10],
         [_assetPriceInfoStack .bottomAnchor constraintEqualToAnchor: self.contentView.bottomAnchor constant: -8.0],
-        [_assetPriceInfoStack.widthAnchor constraintEqualToAnchor:self.contentView.widthAnchor multiplier: 0.3]
+        [_assetPriceInfoStack.widthAnchor constraintEqualToAnchor:self.contentView.widthAnchor multiplier: 0.5]
 
     ]];
     
