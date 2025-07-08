@@ -20,6 +20,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, assign) AssetPriceChangeDirection direction;
 
 - (instancetype)initWithDictionary: (NSDictionary*) dict;
+- (void)updatePriceModel: (NSDictionary*) dict;
 
 @end
 

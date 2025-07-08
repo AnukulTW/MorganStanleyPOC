@@ -29,7 +29,7 @@
     _socket.connectionDelegate = self;
     NetworkConnectionManager *manager = [[NetworkConnectionManager alloc] initWithAPIKey:Constants.apiKey apiSecret:Constants.apiSecret];
     _assetClient = [[MarketAssetClient alloc] initWithNetworkManager:manager];
-    _assetClient.requiredSymbol = @[@"AMZN", @"AAPL",@"MLGO", @"INTC", @"AMTM", @"ARCA", @"ANAB", @"ABNB"];
+    _assetClient.requiredSymbol = @[@"AMZN", @"AAPL",/*@"MLGO", @"INTC", @"AMTM", @"ARCA", @"ANAB", @"ABNB"*/];
     [self fetchLastQuotes];
     [self setupUIComponents];
     [self layoutContraints];
@@ -67,9 +67,11 @@
     AssetTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier: @"AssetTableViewCell"
                                                                forIndexPath:indexPath];
     
-    AssetModel *model = _assetList[indexPath.row];
-    AssetPriceModel *livePrice = [_socket fetchPrice: model.symbol];
-    [cell configureCell: model livePice: livePrice];
+    NSString *model = _assetList[indexPath.row];
+    if ([_socket fetchPrice: model] != NULL) {
+        AssetPriceModel *livePrice = [_socket fetchPrice: model];
+        [cell configureCell: model livePice: livePrice];
+    }
     return cell;
 }
 
@@ -94,10 +96,10 @@
         }
 
 - (void)fetchLastQuotes {
-    __weak typeof(self) weakSelf = self;
-    [_assetClient fetchLastQuoteForAsset:@[@"AMZN", @"AAPL",@"MLGO", @"INTC", @"AMTM", @"ARCA", @"ANAB", @"ABNB"] completion:^(NSArray<AssetQuoteModel *> * _Nullable result, NSError * _Nullable error) {
-        [weakSelf updateAssetLatestQuoteAndRefreshUI: result];
-    }];
+//    __weak typeof(self) weakSelf = self;
+//    [_assetClient fetchLastQuoteForAsset:@[@"AMZN", @"AAPL",@"MLGO", @"INTC", @"AMTM", @"ARCA", @"ANAB", @"ABNB"] completion:^(NSArray<AssetQuoteModel *> * _Nullable result, NSError * _Nullable error) {
+//        [weakSelf updateAssetLatestQuoteAndRefreshUI: result];
+//    }];
 }
 
 - (void)updateAssetLatestQuoteAndRefreshUI:(NSArray<AssetQuoteModel *> *)assetQuoteArray {
@@ -116,17 +118,18 @@
     
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         dispatch_async(dispatch_get_main_queue(),^ {
-            weakSelf.assetList = newAssetList;
+            weakSelf.assetList = @[@"EURUSD", @"AUDUSD", @"USDJPY"]; //newAssetList;
             [weakSelf.instrumentList reloadData];
         });
     });
 }
 
 - (void)subscribeAssetLivePriceConnection:(NSArray<NSString *>*)assets {
-    [_socket subscribeAssets:assets];
+    [_socket subscribeAssets: @[@"EURUSD", @"AUDUSD", @"USDJPY"]];
 }
 
 - (void)didReceivePrice:(AssetPriceModel *)priceModel forAsset:(NSString *)asset {
+
     dispatch_async(dispatch_get_main_queue(), ^{
         // Code here runs on the main thread
         // Safe to update UI
@@ -134,12 +137,41 @@
     });
 }
 
+
+- (void)didReceivePrice:(NSDictionary <NSString* , AssetPriceModel*> *)messageDict {
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self updateUIForAsset:messageDict];
+    });
+
+}
+
+- (void)updateUIForAsset:(NSDictionary <NSString* , AssetPriceModel*> *)messageDict {
+    
+    NSArray<NSIndexPath *> *visibleIndexPaths = [self.instrumentList indexPathsForVisibleRows];
+
+    
+    NSMutableArray *indexPathToBeReloaded = [[NSMutableArray alloc]init];
+    for (NSString *assetKey in [messageDict allKeys]) {
+        for (NSIndexPath *indexPath in visibleIndexPaths) {
+            AssetModel *assetAtIndex = _assetList[indexPath.row];
+            if (assetAtIndex != NULL && [assetAtIndex.symbol isEqual: assetKey]) {
+                // Then reload just that row
+                [indexPathToBeReloaded addObject:indexPath];
+            }
+        }
+    }
+    
+    [self.instrumentList reloadRowsAtIndexPaths: indexPathToBeReloaded withRowAnimation:UITableViewRowAnimationNone];
+
+}
+
+
 - (void)updateUIForAsset:(AssetPriceModel *)priceModel forAsset:(NSString *)asset {
     NSArray<NSIndexPath *> *visibleIndexPaths = [self.instrumentList indexPathsForVisibleRows];
     
     for (NSIndexPath *indexPath in visibleIndexPaths) {
-        AssetModel *assetAtIndex = _assetList[indexPath.row];
-        if (assetAtIndex != NULL && [assetAtIndex.symbol isEqual: asset]) {
+        NSString *assetAtIndex = _assetList[indexPath.row];
+        if (assetAtIndex != NULL && [assetAtIndex isEqual: asset]) {
             // Then reload just that row
             [self.instrumentList reloadRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationNone];
         }

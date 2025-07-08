@@ -23,4 +23,20 @@
     }
     return self;
 }
+
+- (void)updatePriceModel:(NSDictionary *)dict {
+    
+    [_bidPrice updatePriceModel: @{
+        @"price": dict[@"bidPrice"],
+        @"priceDirection": dict[@"bidPriceDirection"]
+    }];
+    
+    [_askPrice updatePriceModel: @{
+        @"price": dict[@"askPrice"],
+        @"priceDirection": dict[@"askPriceDirection"]
+    }];
+    
+    
+}
+
 @end

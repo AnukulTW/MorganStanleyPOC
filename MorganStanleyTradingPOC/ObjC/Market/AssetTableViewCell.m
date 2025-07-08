@@ -6,6 +6,7 @@
 //
 
 #import "AssetTableViewCell.h"
+#import "AssetPriceView.h"
 
 
 @interface AssetTableViewCell()
@@ -13,7 +14,11 @@
 @property (nonatomic, nonnull ,strong) UILabel *assetBidPrice;
 @property (nonatomic, nonnull ,strong) UILabel *assetAskPrice;
 @property (nonatomic, nonnull ,strong) UIStackView *assetInfoStack;
+@property (nonatomic, nonnull ,strong) UIView *assetInfoView;
+
 @property (nonatomic, nonnull ,strong) UIStackView *assetPriceInfoStack;
+@property (nonatomic, nonnull ,strong) AssetPriceView *assetBidPriceView;
+@property (nonatomic, nonnull ,strong) AssetPriceView *assetAskPriceView;
 
 @end
 
@@ -34,17 +39,31 @@
 }
 
 - (void)setupConstraints {
-    [self.contentView addSubview: _assetInfoStack];
-    [_assetInfoStack addArrangedSubview: _assetName];
-    //[_assetInfoStack addArrangedSubview: _assetPriceInfoStack];
-    [_assetInfoStack addArrangedSubview: _assetBidPrice];
-    [_assetInfoStack addArrangedSubview: _assetAskPrice];
+    // [self.contentView addSubview: _assetInfoStack];
+    // [_assetInfoStack addArrangedSubview: _assetName];
+    // [_assetInfoStack addArrangedSubview: _assetPriceInfoStack];
+    
+    [self.contentView addSubview: _assetName];
+    [self.contentView addSubview: _assetPriceInfoStack];
+
+    [_assetPriceInfoStack addArrangedSubview: _assetBidPriceView];
+    [_assetPriceInfoStack addArrangedSubview: _assetAskPriceView];
 
     [NSLayoutConstraint activateConstraints: @[
-        [_assetInfoStack.leadingAnchor constraintEqualToAnchor: self.contentView.leadingAnchor constant: 20],
-        [_assetInfoStack.topAnchor constraintEqualToAnchor: self.contentView.topAnchor constant: 8.0],
-        [_assetInfoStack.trailingAnchor constraintEqualToAnchor: self.contentView.trailingAnchor constant: -20],
-        [_assetInfoStack .bottomAnchor constraintEqualToAnchor: self.contentView.bottomAnchor constant: -8.0],
+        [_assetName.leadingAnchor constraintEqualToAnchor: self.contentView.leadingAnchor constant: 20],
+        [_assetName.topAnchor constraintEqualToAnchor: self.contentView.topAnchor constant: 8.0],
+        //[_assetInfoStack.trailingAnchor constraintEqualToAnchor: self.contentView.trailingAnchor constant: -20],
+        [_assetName .bottomAnchor constraintEqualToAnchor: self.contentView.bottomAnchor constant: -8.0],
+        [_assetName.widthAnchor constraintEqualToAnchor:self.contentView.widthAnchor multiplier: 0.6]
+    ]];
+    
+    [NSLayoutConstraint activateConstraints: @[
+        [_assetPriceInfoStack.leadingAnchor constraintEqualToAnchor: _assetName.trailingAnchor constant: 10],
+        [_assetPriceInfoStack.topAnchor constraintEqualToAnchor: self.contentView.topAnchor constant: 8.0],
+        [_assetPriceInfoStack.trailingAnchor constraintEqualToAnchor: self.contentView.trailingAnchor constant: -10],
+        [_assetPriceInfoStack .bottomAnchor constraintEqualToAnchor: self.contentView.bottomAnchor constant: -8.0],
+        [_assetPriceInfoStack.widthAnchor constraintEqualToAnchor:self.contentView.widthAnchor multiplier: 0.3]
+
     ]];
     
     [_assetInfoStack setCustomSpacing:4.0 afterView: _assetBidPrice];
@@ -53,8 +72,8 @@
 
 - (void)setupUI {
     [self setupAssetNameLabel];
-    [self setupAssetSymbolLabel];
-    [self setupAssetLivePriceLabel];
+    [self setupAssetAskPriceView];
+    [self setupAssetBidPriceView];
     [self setupAssetInfoStack];
     [self setupAssetPriceInfoStack];
 }
@@ -62,30 +81,46 @@
 - (void)setupAssetNameLabel {
     _assetName = [[UILabel alloc]init];
     _assetName.translatesAutoresizingMaskIntoConstraints = NO;
-    _assetName.font = [UIFont boldSystemFontOfSize: 18];
+    _assetName.font = [UIFont boldSystemFontOfSize: 16];
     _assetName.textColor = [UIColor blackColor];
+    _assetName.numberOfLines = 0;
 }
 
-- (void)setupAssetSymbolLabel {
-    _assetBidPrice = [[UILabel alloc]init];
-    _assetBidPrice.translatesAutoresizingMaskIntoConstraints = NO;
-    _assetBidPrice.font = [UIFont systemFontOfSize: 16.0];
-    _assetBidPrice.textColor = [UIColor blackColor];
+- (void)setupAssetAskPriceView {
+    _assetAskPriceView = [[AssetPriceView alloc]init];
+    _assetAskPriceView.translatesAutoresizingMaskIntoConstraints = NO;
 }
 
-- (void)setupAssetLivePriceLabel {
-    _assetAskPrice = [[UILabel alloc]init];
-    _assetAskPrice.translatesAutoresizingMaskIntoConstraints = NO;
-    _assetAskPrice.font = [UIFont systemFontOfSize: 16.0];
-    _assetAskPrice.textColor = [UIColor blackColor];
+- (void)setupAssetBidPriceView {
+    _assetBidPriceView = [[AssetPriceView alloc]init];
+    _assetBidPriceView.translatesAutoresizingMaskIntoConstraints = NO;
 }
+
+//- (void)setupAssetSymbolLabel {
+//    _assetBidPrice = [[UILabel alloc]init];
+//    _assetBidPrice.translatesAutoresizingMaskIntoConstraints = NO;
+//    _assetBidPrice.font = [UIFont systemFontOfSize: 16.0];
+//    _assetBidPrice.textColor = [UIColor blackColor];
+//}
+//
+//- (void)setupAssetLivePriceLabel {
+//    _assetAskPrice = [[UILabel alloc]init];
+//    _assetAskPrice.translatesAutoresizingMaskIntoConstraints = NO;
+//    _assetAskPrice.font = [UIFont systemFontOfSize: 16.0];
+//    _assetAskPrice.textColor = [UIColor blackColor];
+//}
 
 - (void)setupAssetInfoStack {
     _assetInfoStack = [[UIStackView alloc]init];
     _assetInfoStack.translatesAutoresizingMaskIntoConstraints = NO;
-    _assetInfoStack.axis = UILayoutConstraintAxisVertical;
+    _assetInfoStack.axis = UILayoutConstraintAxisHorizontal;
     _assetInfoStack.distribution = UIStackViewDistributionFill;
     _assetInfoStack.spacing = 10.0;
+}
+
+- (void)setupAssetInfoView {
+    _assetInfoView = [[UIView alloc]init];
+    _assetInfoStack.translatesAutoresizingMaskIntoConstraints = NO;
 }
 
 - (void)setupAssetPriceInfoStack {
@@ -100,16 +135,24 @@
     [super setSelected:selected animated:animated];
 }
 
-- (void)configureCell:(AssetModel *)model livePice: (AssetPriceModel *)price {
-    _assetName.text = [[model.symbol stringByAppendingString:@" - "] stringByAppendingString: model.name ];
-    NSString *bidPriceString = [NSString stringWithFormat:@"%.2f", price.bidPrice.price];
-    NSString *askPriceString = [NSString stringWithFormat:@"%.2f", price.askPrice.price];
-    _assetBidPrice.text = [@"Bid Price : " stringByAppendingString: bidPriceString];
-    _assetAskPrice.text = [@"Ask Price : " stringByAppendingString: askPriceString];
+- (void)configureCell:(NSString *)model livePice: (AssetPriceModel *)price {
     
-    _assetBidPrice.textColor = price.bidPrice.direction == AssetPriceChangeDirectionUp ? [UIColor greenColor] : [UIColor redColor];
-    _assetAskPrice.textColor = price.askPrice.direction == AssetPriceChangeDirectionUp ? [UIColor greenColor] : [UIColor redColor];
-
+    _assetName.text = model;
+    [_assetAskPriceView configureWithPrice: price.askPrice];
+    [_assetBidPriceView configureWithPrice: price.bidPrice];
 }
+
+//- (void)configureCell:(AssetModel *)model livePice: (AssetPriceModel *)price {
+//    _assetName.text = [[model.symbol stringByAppendingString:@" - "] stringByAppendingString: model.name ];
+//    
+//    [_assetAskPriceView configureWithPrice: price.askPrice];
+//    [_assetBidPriceView configureWithPrice: price.bidPrice];
+////    NSString *bidPriceString = [NSString stringWithFormat:@"%.2f", price.bidPrice.price];
+////    NSString *askPriceString = [NSString stringWithFormat:@"%.2f", price.askPrice.price];
+////    _assetBidPrice.text = [@"Bid Price : " stringByAppendingString: bidPriceString];
+////    _assetAskPrice.text = [@"Ask Price : " stringByAppendingString: askPriceString];
+////    _assetBidPrice.textColor = price.bidPrice.direction == AssetPriceChangeDirectionUp ? [UIColor greenColor] : [UIColor redColor];
+////    _assetAskPrice.textColor = price.askPrice.direction == AssetPriceChangeDirectionUp ? [UIColor greenColor] : [UIColor redColor];
+//}
 
 @end

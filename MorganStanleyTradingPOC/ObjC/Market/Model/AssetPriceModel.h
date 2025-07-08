@@ -15,7 +15,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, nonnull, strong,) PriceModel *askPrice;
 
 - (instancetype)initWithQuoteDictionary: (NSDictionary*) dict;
-
+- (void)updatePriceModel:(NSDictionary *)dict;
 @end
 
 NS_ASSUME_NONNULL_END

@@ -13,6 +13,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @protocol SocketConnectionManagerDelegate <NSObject>
 - (void)didReceivePrice:(AssetPriceModel *)priceModel forAsset:(NSString *)asset;
+- (void)didReceivePrice:(NSDictionary <NSString* , AssetPriceModel*> *)messageDict;
+
 @end
 
 

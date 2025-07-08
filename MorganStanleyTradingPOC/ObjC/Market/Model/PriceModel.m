@@ -18,5 +18,9 @@
     return self;
 }
 
+- (void)updatePriceModel: (NSDictionary*) dict {
+    _price = [dict[@"price"] floatValue];
+    _direction = [dict[@"priceDirection"] integerValue];
+}
 
 @end
