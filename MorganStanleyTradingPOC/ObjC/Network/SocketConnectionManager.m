@@ -209,7 +209,7 @@
 - (void)subscribeAssets:(NSArray<NSString *>*)assets {
     // NSDictionary *authPayload = @{@"action": @"subscribe", @"quotes": @[@"AMZN", @"AAPL",@"MLGO", @"INTC"]};
     //NSDictionary *authPayload = @{@"action": @"subscribe", @"quotes": @[@"AVAX/USD", @"BTC/USD"]};
-    NSDictionary *authPayload = @{@"op": @"subscribe", @"pairs": assets, @"stream": @"fx"};
+    NSDictionary *authPayload = @{@"op": @"subscribe", @"pairs": assets, @"stream": @"fx1s"};
     NSData *jsonData = [NSJSONSerialization dataWithJSONObject:authPayload options:0 error:nil];
     NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
     [self sendMessage:jsonString];
