@@ -19,6 +19,7 @@
 -(instancetype)init{
     self.socket = [[NativeSocketConnectionManager alloc] init];
     self.socket.connectionDelegate = self;
+    _livePriceDictionary = [[NSMutableDictionary alloc] init];
     [self startSocket];
     return self;
 }
