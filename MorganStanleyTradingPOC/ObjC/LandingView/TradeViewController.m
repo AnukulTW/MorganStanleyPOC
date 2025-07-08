@@ -13,10 +13,11 @@
 #import "AssetQuoteModel.h"
 #import "AssetTableViewCell.h"
 #import "MarketAssetClient.h"
+#import "TradeController.h"
 #import <MorganStanleyTradingPOC-Swift.h>
-@interface TradeViewController ()<UITableViewDataSource, NativeSocketConnectionManagerDelegate>
+@interface TradeViewController ()<UITableViewDataSource, SymbolsHandler>
 //@property (nonatomic, nonnull, strong) SocketConnectionManager *socket;
-@property (nonatomic, nonnull, strong) NativeSocketConnectionManager *socket;
+@property (nonatomic, nonnull, strong) TradeController *controller;
 @property (nonatomic, nonnull, strong) UITableView *instrumentList;
 @property (nonatomic, nonnull, strong) NSArray *assetList;
 @property (nonatomic, nonnull, strong) MarketAssetClient *assetClient;
@@ -27,11 +28,11 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    _socket = [[NativeSocketConnectionManager alloc]init];
-    _socket.connectionDelegate = self;
     NetworkConnectionManager *manager = [[NetworkConnectionManager alloc] initWithAPIKey:Constants.apiKey apiSecret:Constants.apiSecret];
     _assetClient = [[MarketAssetClient alloc] initWithNetworkManager:manager];
     _assetClient.requiredSymbol = @[@"AMZN", @"AAPL",/*@"MLGO", @"INTC", @"AMTM", @"ARCA", @"ANAB", @"ABNB"*/];
+    _controller = [[TradeController alloc]init];
+    _controller.handler = self;
     [self fetchLastQuotes];
     [self setupUIComponents];
     [self layoutContraints];
@@ -70,8 +71,8 @@
                                                                forIndexPath:indexPath];
     
     NSString *model = _assetList[indexPath.row];
-    if ([_socket fetchPrice: model] != NULL) {
-        AssetPriceModel *livePrice = [_socket fetchPrice: model];
+    AssetPriceModel *livePrice = [_controller fetchPrice: model];
+    if (livePrice != NULL) {
         [cell configureCell: model livePice: livePrice];
     }
     return cell;
@@ -109,7 +110,7 @@
     
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         dispatch_async(dispatch_get_main_queue(),^ {
-            [weakSelf.socket updateAssetLastQuote: assetQuoteArray];
+            [weakSelf.controller.handler updateAssetLastQuote: assetQuoteArray];
             [weakSelf.instrumentList reloadData];
         });
     });
@@ -127,7 +128,7 @@
 }
 
 - (void)subscribeAssetLivePriceConnection:(NSArray<NSString *>*)assets {
-    [_socket subscribeAssets: @[@"EURUSD", @"AUDUSD", @"USDJPY"]];
+    [_controller subscribeAssets: @[@"EURUSD", @"AUDUSD", @"USDJPY"]];
 }
 
 - (void)didReceivePrice:(AssetPriceModel *)priceModel forAsset:(NSString *)asset {

@@ -16,7 +16,7 @@
 @implementation NativeSocketConnectionManager
 
 NSString * const kWebSocketURLString = @"wss://euc2.primeapi.io";
-NSString * const kAuthKey = @"412a1eadfd-aee20f3516-sz2frh";
+NSString * const kAuthKey = @"271a3da4f2-be99aec8bd-sz2vu6";
 
 - (instancetype)init {
     self = [super init];
@@ -68,17 +68,27 @@ NSString * const kAuthKey = @"412a1eadfd-aee20f3516-sz2frh";
             [self reconnect];
             return;
         }
-
+        
         if (message.type == NSURLSessionWebSocketMessageTypeString) {
-            NSString *text = message.string;
+            NSString *dataString = message.string;
             if ([self.connectionDelegate respondsToSelector:@selector(didReceiveMessage:)]) {
-                [self.connectionDelegate didReceiveMessage:text];
+                [self.connectionDelegate didReceiveMessage:dataString];
             }
         }
+        
 
         // Listen again
         [self receiveMessages];
     }];
+}
+
+- (void)subscribeAssets:(NSArray<NSString *>*)assets {
+    // NSDictionary *authPayload = @{@"action": @"subscribe", @"quotes": @[@"AMZN", @"AAPL",@"MLGO", @"INTC"]};
+    //NSDictionary *authPayload = @{@"action": @"subscribe", @"quotes": @[@"AVAX/USD", @"BTC/USD"]};
+    NSDictionary *authPayload = @{@"op": @"subscribe", @"pairs": assets, @"stream": @"fx"};
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:authPayload options:0 error:nil];
+    NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+    [self sendMessage:jsonString];
 }
 
 - (void)disconnect {
