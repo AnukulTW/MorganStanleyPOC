@@ -13,10 +13,8 @@
 @property (strong, nonatomic) SRWebSocket *webSocket;
 @property (strong, nonatomic, nonnull) NSMutableDictionary <NSString *, AssetPriceModel*>* livePriceDictionary;
 @property (nonatomic, strong) dispatch_queue_t socketQueue;
-@property (nonatomic, strong) NSTimer *throttleTimer;
 @property (nonatomic, strong) NSMutableDictionary <NSString*, AssetPriceModel *>*pendingMessages;
-
-
+@property (assign, nonatomic)BOOL isEnablePrimeAPI;
 @end
 
 @implementation SocketConnectionManager
@@ -25,9 +23,8 @@
     self = [super init];
     if (self) {
         _socketQueue = dispatch_queue_create("com.yourapp.socketQueue", DISPATCH_QUEUE_SERIAL);
-        //NSURL *url = [NSURL URLWithString:@"wss://stream.data.alpaca.markets/v2/iex"];
-        
-        NSURL *url = [NSURL URLWithString:@"wss://euc2.primeapi.io"];
+        _isEnablePrimeAPI = YES;
+        NSURL *url = [self createURL];
         self.webSocket = [[SRWebSocket alloc] initWithURL:url];
         self.webSocket.delegate = self;
         self.webSocket.delegateDispatchQueue = _socketQueue;
@@ -38,6 +35,54 @@
 
     }
     return self;
+}
+
+- (NSString *)assetNameKey {
+    return _isEnablePrimeAPI ? @"sym" : @"S";
+}
+
+- (NSString *)bidPriceKey {
+    return _isEnablePrimeAPI ? @"bid" : @"bp";
+}
+
+- (NSString *)askPriceKey {
+    return _isEnablePrimeAPI ? @"ask" : @"ap";
+}
+
+- (NSURL *)createURL {
+    NSString *baseURL = _isEnablePrimeAPI ? @"wss://euc2.primeapi.io" : @"wss://stream.data.alpaca.markets/v2/iex";
+    return [NSURL URLWithString: baseURL];
+}
+
+- (NSDictionary *)authDictionary {
+    if (_isEnablePrimeAPI) {
+        return @{
+            @"op": @"auth",
+            @"key": @"412a1eadfd-aee20f3516-sz2frh"
+        };
+        
+    } else {
+        return @{
+            @"action": @"auth",
+            @"key": @"PKYZ8FLRID2JGVKBLDJA",
+            @"secret": @"ECVgORFsR9EunOvZrSBqmSgz9VzPHOJqTc9C2g0H"
+        };
+    }
+}
+
+- (NSDictionary *)livePriceSubcriptionDictionary: (NSArray<NSString *> *)assets {
+    if(_isEnablePrimeAPI) {
+        return @{
+            @"op": @"subscribe",
+            @"pairs": assets,
+            @"stream": @"fx1s"
+        };
+    } else {
+        return @{
+            @"action": @"subscribe",
+            @"quotes": assets
+        };
+    }
 }
 
 - (void)sendMessage:(NSString *)message {
@@ -56,7 +101,6 @@
 }
 
 - (void)webSocket:(SRWebSocket *)webSocket didReceiveMessage:(id)message {
-    
     
     NSData *responseData;
     if([message isKindOfClass:[NSData class]]) {
@@ -79,22 +123,26 @@
 }
 
 - (void)parseResponse: (NSDictionary *)responseDict {
-    
-    NSString *assetSymbol = responseDict[@"sym"];
+
     NSArray<NSString*> *keys = responseDict.allKeys;
+    NSString *assetNameKey = [self assetNameKey];
+    NSString *bidPriceKey = [self bidPriceKey];
+    NSString *askPriceKey = [self askPriceKey];
     
-    if(_livePriceDictionary[assetSymbol] == NULL) {
-        if([keys containsObject: @"sym"] &&
-           [keys containsObject: @"bid"] &&
-           [keys containsObject: @"ask"] &&
-           responseDict[@"sym"] != NULL &&
-           responseDict[@"bid"] != NULL &&
-           responseDict[@"ask"] != NULL
-           ) {
-            NSString *assetSymbol = responseDict[@"sym"];
+    if([keys containsObject:assetNameKey] &&
+       [keys containsObject: bidPriceKey] &&
+       [keys containsObject: askPriceKey] &&
+       responseDict[assetNameKey] != NULL &&
+       responseDict[bidPriceKey] != NULL &&
+       responseDict[askPriceKey] != NULL
+       ) {
+        
+        NSString *assetName = responseDict[assetNameKey];
+        
+        if(_livePriceDictionary[assetName] == NULL) {
             
-            Float32 currentBidPrice = [responseDict[@"bid"] floatValue];
-            Float32 currentAskPrice = [responseDict[@"ask"] floatValue];
+            Float32 currentBidPrice = [responseDict[bidPriceKey] floatValue];
+            Float32 currentAskPrice = [responseDict[askPriceKey] floatValue];
             
             NSUInteger bidPriceDirection = 0;
             NSUInteger askPriceDirection = 0;
@@ -106,40 +154,34 @@
                 @"askPriceDirection": @(askPriceDirection)
             }];
             
+            _livePriceDictionary[assetName] = priceModel;
+            [_connectionDelegate didReceivePrice: priceModel forAsset:assetName];
             
-            _livePriceDictionary[assetSymbol] = priceModel;
-            [_connectionDelegate didReceivePrice: priceModel forAsset:assetSymbol];
+        } else {
+            
+            AssetPriceModel *model = [self updatePriceModel:responseDict];
+            _livePriceDictionary[assetName] = model;
+            [_connectionDelegate didReceivePrice: model forAsset:assetName];
         }
-    } else {
-            
-            
-            if([keys containsObject: @"sym"] &&
-               [keys containsObject: @"bid"] &&
-               [keys containsObject: @"ask"] &&
-               responseDict[@"sym"] != NULL &&
-               responseDict[@"bid"] != NULL &&
-               responseDict[@"ask"] != NULL
-               ) {
-                AssetPriceModel *model = [self updatePriceModel:responseDict];
-                _livePriceDictionary[assetSymbol] = model;
-                [_connectionDelegate didReceivePrice: model forAsset:assetSymbol];
-            }
-            
-        }
+    }
 }
 
 - (AssetPriceModel *)updatePriceModel: (NSDictionary *)responseDict {
     
     @autoreleasepool {
         
-        NSString *assetSymbol = responseDict[@"sym"];
+        NSString *assetNameKey = [self assetNameKey];
+        NSString *bidPriceKey = [self bidPriceKey];
+        NSString *askPriceKey = [self askPriceKey];
+        
+        NSString *assetSymbol = responseDict[assetNameKey];
         AssetPriceModel *previousModel = _livePriceDictionary[assetSymbol];
         
         Float32 previousBidPrice = previousModel.bidPrice.price;
         Float32 previousAskPrice = previousModel.askPrice.price;
         
-        Float32 currentBidPrice = [responseDict[@"bid"] floatValue];
-        Float32 currentAskPrice = [responseDict[@"ask"] floatValue];
+        Float32 currentBidPrice = [responseDict[bidPriceKey] floatValue];
+        Float32 currentAskPrice = [responseDict[askPriceKey] floatValue];
         
         if(currentAskPrice == previousAskPrice && currentBidPrice == previousBidPrice) {
             return previousModel;
@@ -195,8 +237,7 @@
 }
 
 - (void)authenticateWebSocketConnection {
-//    NSDictionary *authPayload = @{@"action": @"auth", @"key": @"PKYZ8FLRID2JGVKBLDJA", @"secret": @"ECVgORFsR9EunOvZrSBqmSgz9VzPHOJqTc9C2g0H"};
-    NSDictionary *authPayload = @{@"op": @"auth", @"key": @"412a1eadfd-aee20f3516-sz2frh"};
+    NSDictionary *authPayload = [self authDictionary];
     NSData *jsonData = [NSJSONSerialization dataWithJSONObject:authPayload options:0 error:nil];
     NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
     [self sendMessage:jsonString];
@@ -204,39 +245,10 @@
 }
 
 - (void)subscribeAssets:(NSArray<NSString *>*)assets {
-    // NSDictionary *authPayload = @{@"action": @"subscribe", @"quotes": @[@"AMZN", @"AAPL",@"MLGO", @"INTC"]};
-    //NSDictionary *authPayload = @{@"action": @"subscribe", @"quotes": @[@"AVAX/USD", @"BTC/USD"]};
-    NSDictionary *authPayload = @{@"op": @"subscribe", @"pairs": assets, @"stream": @"fx1s"};
-    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:authPayload options:0 error:nil];
+    NSDictionary *subscriptionDict = [self livePriceSubcriptionDictionary: assets];
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:subscriptionDict options:0 error:nil];
     NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
     [self sendMessage:jsonString];
-}
-
-
-- (void)startThrottleTimer {
-    if (!self.throttleTimer) {
-        self.throttleTimer = [NSTimer scheduledTimerWithTimeInterval:0.5
-                                                               target:self
-                                                             selector:@selector(fireThrottledUpdate)
-                                                             userInfo:nil
-                                                              repeats:NO];
-    }
-}
-
-- (void)fireThrottledUpdate {
-    NSArray *batch = nil;
-    @synchronized (self.pendingMessages) {
-        batch = [self.pendingMessages copy];
-        [self.pendingMessages removeAllObjects];
-    }
-    
-    if (batch.count > 0) {
-        //[_connectionDelegate didReceivePrice:priceModel forAsset:assetSymbol];
-        [_connectionDelegate didReceivePrice: batch];
-    }
-    
-    [self.throttleTimer invalidate];
-    self.throttleTimer = nil;
 }
 
 @end
