@@ -19,7 +19,9 @@
     if (self) {
         [self setupUIComponents];
         [self layoutContraints];
-        self.backgroundColor = [UIColor whiteColor];
+        self.layer.cornerRadius = 4.0;
+        self.layer.borderWidth = 1.0;
+        self.clipsToBounds = true;
     }
     
     return self;
@@ -41,19 +43,29 @@
     [self addSubview: _priceLabel];
     [NSLayoutConstraint activateConstraints: @[
         [_priceLabel.leadingAnchor constraintEqualToAnchor: self.leadingAnchor],
-        [_priceLabel.topAnchor constraintEqualToAnchor: self.topAnchor constant: 4.0],
+        [_priceLabel.topAnchor constraintEqualToAnchor: self.topAnchor constant: 6.0],
         [_priceLabel.trailingAnchor constraintEqualToAnchor: self.trailingAnchor],
-        [_priceLabel. bottomAnchor constraintEqualToAnchor: self.bottomAnchor constant: -4.0]
+        [_priceLabel. bottomAnchor constraintEqualToAnchor: self.bottomAnchor constant: -6.0]
     ]];
 }
 
 - (void)configureWithPrice: (PriceModel *)model {
     NSString *priceString = [NSString stringWithFormat:@"%.5f", model.price];
     _priceLabel.text = priceString;
-    _priceLabel.textColor = model.direction == AssetPriceChangeDirectionUp ? [UIColor colorWithRed: 80.0/255 green: 107.0/255 blue: 94.0/255 alpha:1.0] : [UIColor whiteColor];
     
     
-    self.backgroundColor = model.direction == AssetPriceChangeDirectionUp ? [UIColor colorWithRed: 160.0/255 green: 214.0/255 blue: 187.0/255 alpha:1.0] : [UIColor colorWithRed: 244.0/255 green: 55.0/255 blue: 66.0/255 alpha:1.0];
+    if (model.direction == AssetPriceChangeDirectionNone) {
+        _priceLabel.textColor = [UIColor blackColor];
+        self.backgroundColor = [UIColor lightGrayColor];
+        self.layer.borderColor = [UIColor blackColor].CGColor;
+    } else {
+        
+        UIColor *upColor = [UIColor colorWithRed: 160.0/255 green: 214.0/255 blue: 187.0/255 alpha:1.0];
+        UIColor *downColor = [UIColor colorWithRed: 244.0/255 green: 55.0/255 blue: 66.0/255 alpha:1.0];
+        _priceLabel.textColor = model.direction == AssetPriceChangeDirectionUp ? [UIColor colorWithRed: 80.0/255 green: 107.0/255 blue: 94.0/255 alpha:1.0] : [UIColor whiteColor];
+        self.backgroundColor = model.direction == AssetPriceChangeDirectionUp ? upColor : downColor;
+        self.layer.borderColor = model.direction == AssetPriceChangeDirectionUp ? [UIColor greenColor].CGColor : [UIColor redColor].CGColor;
+    }
 }
 
 @end

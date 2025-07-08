@@ -39,10 +39,6 @@
 }
 
 - (void)setupConstraints {
-    // [self.contentView addSubview: _assetInfoStack];
-    // [_assetInfoStack addArrangedSubview: _assetName];
-    // [_assetInfoStack addArrangedSubview: _assetPriceInfoStack];
-    
     [self.contentView addSubview: _assetName];
     [self.contentView addSubview: _assetPriceInfoStack];
 
@@ -51,17 +47,17 @@
 
     [NSLayoutConstraint activateConstraints: @[
         [_assetName.leadingAnchor constraintEqualToAnchor: self.contentView.leadingAnchor constant: 20],
-        [_assetName.topAnchor constraintEqualToAnchor: self.contentView.topAnchor constant: 8.0],
+        [_assetName.topAnchor constraintEqualToAnchor: self.contentView.topAnchor constant: 12.0],
         //[_assetInfoStack.trailingAnchor constraintEqualToAnchor: self.contentView.trailingAnchor constant: -20],
-        [_assetName .bottomAnchor constraintEqualToAnchor: self.contentView.bottomAnchor constant: -8.0],
+        [_assetName .bottomAnchor constraintEqualToAnchor: self.contentView.bottomAnchor constant: -12.0],
         [_assetName.widthAnchor constraintEqualToAnchor:self.contentView.widthAnchor multiplier: 0.4]
     ]];
     
     [NSLayoutConstraint activateConstraints: @[
         [_assetPriceInfoStack.leadingAnchor constraintEqualToAnchor: _assetName.trailingAnchor constant: 10],
-        [_assetPriceInfoStack.topAnchor constraintEqualToAnchor: self.contentView.topAnchor constant: 8.0],
+        [_assetPriceInfoStack.topAnchor constraintEqualToAnchor: self.contentView.topAnchor constant: 12.0],
         [_assetPriceInfoStack.trailingAnchor constraintEqualToAnchor: self.contentView.trailingAnchor constant: -10],
-        [_assetPriceInfoStack .bottomAnchor constraintEqualToAnchor: self.contentView.bottomAnchor constant: -8.0],
+        [_assetPriceInfoStack .bottomAnchor constraintEqualToAnchor: self.contentView.bottomAnchor constant: -12.0],
         [_assetPriceInfoStack.widthAnchor constraintEqualToAnchor:self.contentView.widthAnchor multiplier: 0.5]
 
     ]];
@@ -93,20 +89,6 @@
     _assetBidPriceView = [[AssetPriceView alloc]init];
     _assetBidPriceView.translatesAutoresizingMaskIntoConstraints = NO;
 }
-
-//- (void)setupAssetSymbolLabel {
-//    _assetBidPrice = [[UILabel alloc]init];
-//    _assetBidPrice.translatesAutoresizingMaskIntoConstraints = NO;
-//    _assetBidPrice.font = [UIFont systemFontOfSize: 16.0];
-//    _assetBidPrice.textColor = [UIColor blackColor];
-//}
-//
-//- (void)setupAssetLivePriceLabel {
-//    _assetAskPrice = [[UILabel alloc]init];
-//    _assetAskPrice.translatesAutoresizingMaskIntoConstraints = NO;
-//    _assetAskPrice.font = [UIFont systemFontOfSize: 16.0];
-//    _assetAskPrice.textColor = [UIColor blackColor];
-//}
 
 - (void)setupAssetInfoStack {
     _assetInfoStack = [[UIStackView alloc]init];
