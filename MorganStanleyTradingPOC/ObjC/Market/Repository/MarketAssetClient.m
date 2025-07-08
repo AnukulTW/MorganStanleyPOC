@@ -79,9 +79,6 @@
     NSMutableArray *assetArray = [[NSMutableArray alloc]init];
     NSMutableArray<NSString *> *assetList = [[NSMutableArray alloc]init];
     for (NSDictionary *dict in json) {
-        if (counter > 25) {
-            break;
-        }
         AssetModel *model = [[AssetModel alloc]initWithDictionary: dict];
         if(model != NULL && model.tradable && [_requiredSymbol containsObject: model.symbol]) {
             counter = counter + 1;

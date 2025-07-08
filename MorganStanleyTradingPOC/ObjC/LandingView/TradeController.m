@@ -8,30 +8,40 @@
 #import "NativeSocketConnectionManager.h"
 #import "TradeController.h"
 #import "AssetPriceModel.h"
+#import "SocketConnectionDefaults.h"
+#import "AssetQuoteModel.h"
 
-@interface TradeController()<NativeSocketConnectionManagerDelegate>
-@property (nonatomic, nonnull, strong) NativeSocketConnectionManager *socket;
+@interface TradeController()<SocketConnectionManagerDelegate>
 @property (strong, nonatomic, nonnull) NSMutableDictionary <NSString *, AssetPriceModel*>* livePriceDictionary;
+@property (nonatomic, strong) id<SocketConnectionEnabler> socketEnabler;
+@property (strong, nonatomic) SocketConnectionDefaults *connectionDefaults;
 @end
 
 @implementation TradeController
 
--(instancetype)init{
-    self.socket = [[NativeSocketConnectionManager alloc] init];
-    self.socket.connectionDelegate = self;
+- (instancetype)initWithSocketEnabler:(id<SocketConnectionEnabler>)enabler{
+    self.socketEnabler = enabler;
+    self.socketEnabler.connectionDelegate = self;
+    _connectionDefaults = [[SocketConnectionDefaults alloc] init];
+    _connectionDefaults.isEnablePrimeAPI = YES;
     _livePriceDictionary = [[NSMutableDictionary alloc] init];
     [self startSocket];
     return self;
 }
 
 -(void) startSocket{
-    [self.socket connect];
+    [self.socketEnabler connect];
 }
 
-- (void)didReceiveMessage:(nonnull NSString *)message {
+- (void)didReceiveMessage:(nonnull id)message {
+    NSData *responseData;
+    if([message isKindOfClass:[NSData class]]) {
+        responseData = message;
+    } else {
+        responseData = [message dataUsingEncoding:NSUTF8StringEncoding];
+    }
     NSError *error;
-    NSData *data = [message dataUsingEncoding:NSASCIIStringEncoding];
-    id response = [NSJSONSerialization JSONObjectWithData:data options:0 error:&error];
+    id response = [NSJSONSerialization JSONObjectWithData:responseData options:0 error:&error];
     if([response isKindOfClass: [NSDictionary class]]) {
         NSDictionary* responseDict = response;
         NSArray<NSString*> *keys = responseDict.allKeys;
@@ -41,23 +51,31 @@
     }
 }
 
+- (void)connectionEstablishSuccess{
+    [self.handler connectionEstablishSuccess];
+}
+
 - (void)parseResponse: (NSDictionary *)responseDict {
-    
-    NSString *assetSymbol = responseDict[@"sym"];
+
     NSArray<NSString*> *keys = responseDict.allKeys;
+    NSString *assetNameKey = [self.connectionDefaults assetNameKey];
+    NSString *bidPriceKey = [self.connectionDefaults bidPriceKey];
+    NSString *askPriceKey = [self.connectionDefaults askPriceKey];
     
-    if(_livePriceDictionary[assetSymbol] == NULL) {
-        if([keys containsObject: @"sym"] &&
-           [keys containsObject: @"bid"] &&
-           [keys containsObject: @"ask"] &&
-           responseDict[@"sym"] != NULL &&
-           responseDict[@"bid"] != NULL &&
-           responseDict[@"ask"] != NULL
-           ) {
-            NSString *assetSymbol = responseDict[@"sym"];
+    if([keys containsObject:assetNameKey] &&
+       [keys containsObject: bidPriceKey] &&
+       [keys containsObject: askPriceKey] &&
+       responseDict[assetNameKey] != NULL &&
+       responseDict[bidPriceKey] != NULL &&
+       responseDict[askPriceKey] != NULL
+       ) {
+        
+        NSString *assetName = responseDict[assetNameKey];
+        
+        if(_livePriceDictionary[assetName] == NULL) {
             
-            Float32 currentBidPrice = [responseDict[@"bid"] floatValue];
-            Float32 currentAskPrice = [responseDict[@"ask"] floatValue];
+            Float32 currentBidPrice = [responseDict[bidPriceKey] floatValue];
+            Float32 currentAskPrice = [responseDict[askPriceKey] floatValue];
             
             NSUInteger bidPriceDirection = 0;
             NSUInteger askPriceDirection = 0;
@@ -69,44 +87,35 @@
                 @"askPriceDirection": @(askPriceDirection)
             }];
             
+            _livePriceDictionary[assetName] = priceModel;
+            [self.handler didReceivePrice: priceModel forAsset:assetName];
             
-            _livePriceDictionary[assetSymbol] = priceModel;
-            //[_connectionDelegate didReceivePrice: priceModel forAsset:assetSymbol];
-            [self.handler didReceivePrice:priceModel forAsset:assetSymbol];
+        } else {
+            
+            AssetPriceModel *model = [self updatePriceModel:responseDict];
+            _livePriceDictionary[assetName] = model;
+            [self.handler didReceivePrice: model forAsset:assetName];
         }
-    } else {
-            
-            
-            if([keys containsObject: @"sym"] &&
-               [keys containsObject: @"bid"] &&
-               [keys containsObject: @"ask"] &&
-               responseDict[@"sym"] != NULL &&
-               responseDict[@"bid"] != NULL &&
-               responseDict[@"ask"] != NULL
-               ) {
-                
-                
-                AssetPriceModel *model = [self updatePriceModel:responseDict];
-                _livePriceDictionary[assetSymbol] = model;
-                [self.handler didReceivePrice:model forAsset:assetSymbol];
-            }
-            
-        }
+    }
 }
 
 - (AssetPriceModel *)updatePriceModel: (NSDictionary *)responseDict {
     @autoreleasepool {
-        NSString *assetSymbol = responseDict[@"sym"];
+        
+        NSString *assetNameKey = [self.connectionDefaults assetNameKey];
+        NSString *bidPriceKey = [self.connectionDefaults bidPriceKey];
+        NSString *askPriceKey = [self.connectionDefaults askPriceKey];
+        
+        NSString *assetSymbol = responseDict[assetNameKey];
         AssetPriceModel *previousModel = _livePriceDictionary[assetSymbol];
         
         Float32 previousBidPrice = previousModel.bidPrice.price;
         Float32 previousAskPrice = previousModel.askPrice.price;
         
-        Float32 currentBidPrice = [responseDict[@"bid"] floatValue];
-        Float32 currentAskPrice = [responseDict[@"ask"] floatValue];
+        Float32 currentBidPrice = [responseDict[bidPriceKey] floatValue];
+        Float32 currentAskPrice = [responseDict[askPriceKey] floatValue];
         
         if(currentAskPrice == previousAskPrice && currentBidPrice == previousBidPrice) {
-            NSLog(@"Return printed");
             return previousModel;
         }
         
@@ -126,13 +135,33 @@
 }
 
 - (void)subscribeAssets:(NSArray<NSString *>*)assets {
-    [self.socket subscribeAssets:assets];
+    [self.socketEnabler subscribeAssets:assets];
 }
 
 
 - (nonnull AssetPriceModel *)fetchPrice:(nonnull NSString *)assetName {
     NSLog(@"Value %@",_livePriceDictionary[assetName]);
     return  _livePriceDictionary[assetName];
+}
+
+- (void)updateAssetLastQuote:(NSArray<AssetQuoteModel*> *)assetQuoteArray {
+    for(AssetQuoteModel * assetQuote in assetQuoteArray) {
+        NSString *assetName = assetQuote.assetName;
+        if(_livePriceDictionary[assetName] == NULL) {
+           
+            NSUInteger bidPriceDirection = 0;
+            NSUInteger askPriceDirection = 0;
+            
+            AssetPriceModel *priceModel = [[AssetPriceModel alloc]initWithQuoteDictionary: @{
+                @"bidPrice": @(assetQuote.bidPrice),
+                @"askPrice": @(assetQuote.askPrice),
+                @"bidPriceDirection": @(bidPriceDirection),
+                @"askPriceDirection": @(askPriceDirection)
+            }];
+            
+            _livePriceDictionary[assetName] = priceModel;
+        }
+    }
 }
 
 @end

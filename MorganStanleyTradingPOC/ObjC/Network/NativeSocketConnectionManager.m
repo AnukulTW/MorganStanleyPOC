@@ -6,23 +6,25 @@
 //
 
 #import "NativeSocketConnectionManager.h"
-
+#import "SocketConnectionDefaults.h"
 @interface NativeSocketConnectionManager ()
 @property (strong, nonatomic) NSURLSession *session;
 @property (strong, nonatomic) NSURLSessionWebSocketTask *webSocketTask;
 @property (assign, nonatomic) BOOL isConnected;
+@property (assign, nonatomic)BOOL isEnablePrimeAPI;
 @end
 
 @implementation NativeSocketConnectionManager
-
-NSString * const kWebSocketURLString = @"wss://euc2.primeapi.io";
-NSString * const kAuthKey = @"271a3da4f2-be99aec8bd-sz2vu6";
+@synthesize connectionDelegate;
+//NSString * const kWebSocketURLString = @"wss://euc2.primeapi.io";
+//NSString * const kAuthKey = @"271a3da4f2-be99aec8bd-sz2vu6";
 
 - (instancetype)init {
     self = [super init];
     if (self) {
         NSURLSessionConfiguration *config = [NSURLSessionConfiguration defaultSessionConfiguration];
         _session = [NSURLSession sessionWithConfiguration:config];
+        _isEnablePrimeAPI = YES;
     }
     return self;
 }
@@ -30,22 +32,13 @@ NSString * const kAuthKey = @"271a3da4f2-be99aec8bd-sz2vu6";
 - (void)connect {
     if (self.isConnected) return;
 
-    NSURL *url = [NSURL URLWithString:kWebSocketURLString];
+    NSURL *url = [self createURL];
     self.webSocketTask = [self.session webSocketTaskWithURL:url];
     [self.webSocketTask resume];
 
     self.isConnected = YES;
-
-    // Authenticate
-    NSDictionary *authPayload = @{
-        @"op": @"auth",
-        @"key": kAuthKey
-    };
-    NSData *authData = [NSJSONSerialization dataWithJSONObject:authPayload options:0 error:nil];
-    NSString *authString = [[NSString alloc] initWithData:authData encoding:NSUTF8StringEncoding];
-    [self sendMessage:authString];
-
-    [self receiveMessages];
+    [self authenticateWebSocketConnection];
+    
 }
 
 - (void)sendMessage:(NSString *)message {
@@ -85,8 +78,8 @@ NSString * const kAuthKey = @"271a3da4f2-be99aec8bd-sz2vu6";
 - (void)subscribeAssets:(NSArray<NSString *>*)assets {
     // NSDictionary *authPayload = @{@"action": @"subscribe", @"quotes": @[@"AMZN", @"AAPL",@"MLGO", @"INTC"]};
     //NSDictionary *authPayload = @{@"action": @"subscribe", @"quotes": @[@"AVAX/USD", @"BTC/USD"]};
-    NSDictionary *authPayload = @{@"op": @"subscribe", @"pairs": assets, @"stream": @"fx"};
-    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:authPayload options:0 error:nil];
+    NSDictionary *subscriptionDict = [self livePriceSubcriptionDictionary: assets];
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:subscriptionDict options:0 error:nil];
     NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
     [self sendMessage:jsonString];
 }
@@ -102,5 +95,58 @@ NSString * const kAuthKey = @"271a3da4f2-be99aec8bd-sz2vu6";
     self.isConnected = NO;
     [self connect];
 }
+
+
+- (void)authenticateWebSocketConnection { 
+    NSDictionary *authPayload = [self authDictionary];
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:authPayload options:0 error:nil];
+    NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+    [self sendMessage:jsonString];
+    [self receiveMessages];
+}
+
+- (void) URLSession:(NSURLSession *) session
+      webSocketTask:(NSURLSessionWebSocketTask *) webSocketTask
+didOpenWithProtocol:(NSString *) protocol{
+    [self.connectionDelegate connectionEstablishSuccess];
+}
+
+- (nonnull NSURL *)createURL {
+    NSString *baseURL = _isEnablePrimeAPI ? @"wss://euc2.primeapi.io" : @"wss://stream.data.alpaca.markets/v2/iex";
+    return [NSURL URLWithString: baseURL];
+}
+
+- (nonnull NSDictionary *)authDictionary {
+    if (_isEnablePrimeAPI) {
+        return @{
+            @"op": @"auth",
+            @"key": @"412a1eadfd-aee20f3516-sz2frh"
+        };
+        
+    } else {
+        return @{
+            @"action": @"auth",
+            @"key": @"PKYZ8FLRID2JGVKBLDJA",
+            @"secret": @"ECVgORFsR9EunOvZrSBqmSgz9VzPHOJqTc9C2g0H"
+        };
+    }
+}
+
+- (nonnull NSDictionary *)livePriceSubcriptionDictionary:(nonnull NSArray<NSString *> *)assets {
+    if(_isEnablePrimeAPI) {
+        return @{
+            @"op": @"subscribe",
+            @"pairs": assets,
+            @"stream": @"fx1s"
+        };
+    } else {
+        return @{
+            @"action": @"subscribe",
+            @"quotes": assets
+        };
+    }
+}
+
+
 
 @end
