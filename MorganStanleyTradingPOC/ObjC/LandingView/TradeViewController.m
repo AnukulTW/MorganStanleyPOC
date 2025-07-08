@@ -6,15 +6,17 @@
 //
 
 #import "TradeViewController.h"
-#import "SocketConnectionManager.h"
+//#import "SocketConnectionManager.h"
+#import "NativeSocketConnectionManager.h"
 #import "NetworkConnectionManager.h"
 #import "AssetModel.h"
 #import "AssetQuoteModel.h"
 #import "AssetTableViewCell.h"
 #import "MarketAssetClient.h"
 #import <MorganStanleyTradingPOC-Swift.h>
-@interface TradeViewController ()<UITableViewDataSource, SocketConnectionManagerDelegate>
-@property (nonatomic, nonnull, strong) SocketConnectionManager *socket;
+@interface TradeViewController ()<UITableViewDataSource, NativeSocketConnectionManagerDelegate>
+//@property (nonatomic, nonnull, strong) SocketConnectionManager *socket;
+@property (nonatomic, nonnull, strong) NativeSocketConnectionManager *socket;
 @property (nonatomic, nonnull, strong) UITableView *instrumentList;
 @property (nonatomic, nonnull, strong) NSArray *assetList;
 @property (nonatomic, nonnull, strong) MarketAssetClient *assetClient;
@@ -25,7 +27,7 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    _socket = [[SocketConnectionManager alloc]init];
+    _socket = [[NativeSocketConnectionManager alloc]init];
     _socket.connectionDelegate = self;
     NetworkConnectionManager *manager = [[NetworkConnectionManager alloc] initWithAPIKey:Constants.apiKey apiSecret:Constants.apiSecret];
     _assetClient = [[MarketAssetClient alloc] initWithNetworkManager:manager];
