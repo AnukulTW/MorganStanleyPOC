@@ -16,6 +16,7 @@
 @property (strong, nonatomic, nonnull) NSMutableDictionary <NSString *, AssetPriceModel*>* livePriceDictionary;
 @property (nonatomic, strong) id<SocketConnectionEnabler> socketEnabler;
 @property (strong, nonatomic) SocketConnectionDefaults *connectionDefaults;
+@property (nonatomic, strong) dispatch_queue_t livePriceSerialQueue;
 @end
 
 @implementation TradeController
@@ -26,11 +27,12 @@
     _connectionDefaults = [[SocketConnectionDefaults alloc] init];
     _connectionDefaults.isEnablePrimeAPI = Constants.isEnablePrimeAPI;
     _livePriceDictionary = [[NSMutableDictionary alloc] init];
+    _livePriceSerialQueue = dispatch_queue_create("com.myapp.serialQueue", DISPATCH_QUEUE_SERIAL);
     [self startSocket];
     return self;
 }
 
--(void) startSocket{
+-(void)startSocket {
     [self.socketEnabler connect];
 }
 
@@ -63,47 +65,49 @@
 }
 
 - (void)parseResponse: (NSDictionary *)responseDict {
-
-    NSArray<NSString*> *keys = responseDict.allKeys;
-    NSString *assetNameKey = [self.connectionDefaults assetNameKey];
-    NSString *bidPriceKey = [self.connectionDefaults bidPriceKey];
-    NSString *askPriceKey = [self.connectionDefaults askPriceKey];
-    
-    if([keys containsObject:assetNameKey] &&
-       [keys containsObject: bidPriceKey] &&
-       [keys containsObject: askPriceKey] &&
-       responseDict[assetNameKey] != NULL &&
-       responseDict[bidPriceKey] != NULL &&
-       responseDict[askPriceKey] != NULL
-       ) {
+    dispatch_sync(_livePriceSerialQueue, ^{
+        NSLog(@"Check %d", NSThread.isMainThread);
+        NSArray<NSString*> *keys = responseDict.allKeys;
+        NSString *assetNameKey = [self.connectionDefaults assetNameKey];
+        NSString *bidPriceKey = [self.connectionDefaults bidPriceKey];
+        NSString *askPriceKey = [self.connectionDefaults askPriceKey];
         
-        NSString *assetName = responseDict[assetNameKey];
-        
-        if(_livePriceDictionary[assetName] == NULL) {
+        if([keys containsObject:assetNameKey] &&
+           [keys containsObject: bidPriceKey] &&
+           [keys containsObject: askPriceKey] &&
+           responseDict[assetNameKey] != NULL &&
+           responseDict[bidPriceKey] != NULL &&
+           responseDict[askPriceKey] != NULL
+           ) {
             
-            Float32 currentBidPrice = [responseDict[bidPriceKey] floatValue];
-            Float32 currentAskPrice = [responseDict[askPriceKey] floatValue];
+            NSString *assetName = responseDict[assetNameKey];
             
-            NSUInteger bidPriceDirection = 0;
-            NSUInteger askPriceDirection = 0;
-            
-            AssetPriceModel *priceModel = [[AssetPriceModel alloc]initWithQuoteDictionary: @{
-                @"bidPrice": @(currentBidPrice),
-                @"askPrice": @(currentAskPrice),
-                @"bidPriceDirection": @(bidPriceDirection),
-                @"askPriceDirection": @(askPriceDirection)
-            }];
-            
-            _livePriceDictionary[assetName] = priceModel;
-            [self.handler didReceivePrice: priceModel forAsset:assetName];
-            
-        } else {
-            
-            AssetPriceModel *model = [self updatePriceModel:responseDict];
-            _livePriceDictionary[assetName] = model;
-            [self.handler didReceivePrice: model forAsset:assetName];
+            if(_livePriceDictionary[assetName] == NULL) {
+                
+                Float32 currentBidPrice = [responseDict[bidPriceKey] floatValue];
+                Float32 currentAskPrice = [responseDict[askPriceKey] floatValue];
+                
+                NSUInteger bidPriceDirection = 0;
+                NSUInteger askPriceDirection = 0;
+                
+                AssetPriceModel *priceModel = [[AssetPriceModel alloc]initWithQuoteDictionary: @{
+                    @"bidPrice": @(currentBidPrice),
+                    @"askPrice": @(currentAskPrice),
+                    @"bidPriceDirection": @(bidPriceDirection),
+                    @"askPriceDirection": @(askPriceDirection)
+                }];
+                
+                _livePriceDictionary[assetName] = priceModel;
+                [self.handler didReceivePrice: priceModel forAsset:assetName];
+                
+            } else {
+                AssetPriceModel *model = [self updatePriceModel:responseDict];
+                _livePriceDictionary[assetName] = model;
+                [self.handler didReceivePrice: model forAsset:assetName];
+            }
         }
-    }
+    });
+
 }
 
 - (AssetPriceModel *)updatePriceModel: (NSDictionary *)responseDict {
@@ -129,7 +133,6 @@
         NSUInteger bidPriceDirection = currentBidPrice > previousBidPrice ? 1 : 2;
         NSUInteger askPriceDirection = currentAskPrice > previousAskPrice ? 1 : 2;
         
-        
         [previousModel updatePriceModel: @{
             @"bidPrice": @(currentBidPrice),
             @"askPrice": @(currentAskPrice),
@@ -147,28 +150,36 @@
 
 
 - (nonnull AssetPriceModel *)fetchPrice:(nonnull NSString *)assetName {
-    NSLog(@"Value %@",_livePriceDictionary[assetName]);
-    return  _livePriceDictionary[assetName];
+    __block AssetPriceModel *value;
+
+    dispatch_sync(_livePriceSerialQueue, ^{
+        value = _livePriceDictionary[assetName];
+    });
+    
+    return value;
 }
 
 - (void)updateAssetLastQuote:(NSArray<AssetQuoteModel*> *)assetQuoteArray {
-    for(AssetQuoteModel * assetQuote in assetQuoteArray) {
-        NSString *assetName = assetQuote.assetName;
-        if(_livePriceDictionary[assetName] == NULL) {
-           
-            NSUInteger bidPriceDirection = 0;
-            NSUInteger askPriceDirection = 0;
-            
-            AssetPriceModel *priceModel = [[AssetPriceModel alloc]initWithQuoteDictionary: @{
-                @"bidPrice": @(assetQuote.bidPrice),
-                @"askPrice": @(assetQuote.askPrice),
-                @"bidPriceDirection": @(bidPriceDirection),
-                @"askPriceDirection": @(askPriceDirection)
-            }];
-            
-            _livePriceDictionary[assetName] = priceModel;
+    dispatch_sync(_livePriceSerialQueue, ^{
+        
+        for(AssetQuoteModel * assetQuote in assetQuoteArray) {
+            NSString *assetName = assetQuote.assetName;
+            if(_livePriceDictionary[assetName] == NULL) {
+                
+                NSUInteger bidPriceDirection = 0;
+                NSUInteger askPriceDirection = 0;
+                
+                AssetPriceModel *priceModel = [[AssetPriceModel alloc]initWithQuoteDictionary: @{
+                    @"bidPrice": @(assetQuote.bidPrice),
+                    @"askPrice": @(assetQuote.askPrice),
+                    @"bidPriceDirection": @(bidPriceDirection),
+                    @"askPriceDirection": @(askPriceDirection)
+                }];
+                
+                _livePriceDictionary[assetName] = priceModel;
+            }
         }
-    }
+    });
 }
 
 @end

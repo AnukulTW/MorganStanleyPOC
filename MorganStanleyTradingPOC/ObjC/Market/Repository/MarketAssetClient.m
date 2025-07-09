@@ -23,7 +23,6 @@
     self = [super init];
     if (self) {
         _networkManager = networkManager;
-        _requiredSymbol = @[@"AAPL", @"MSFT"]; // Could also be injected
     }
     return self;
 }
@@ -75,13 +74,11 @@
         return;
     }
     
-    NSInteger counter = 0;
     NSMutableArray *assetArray = [[NSMutableArray alloc]init];
     NSMutableArray<NSString *> *assetList = [[NSMutableArray alloc]init];
     for (NSDictionary *dict in json) {
         AssetModel *model = [[AssetModel alloc]initWithDictionary: dict];
-        if(model != NULL && model.tradable && [_requiredSymbol containsObject: model.symbol]) {
-            counter = counter + 1;
+        if(model != NULL && model.tradable) {
             [assetArray addObject:model];
             [assetList addObject: model.symbol];
         }

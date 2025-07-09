@@ -7,11 +7,12 @@
 
 #import "NativeSocketConnectionManager.h"
 #import "SocketConnectionDefaults.h"
+#import "MorganStanleyTradingPOC-Swift.h"
+
 @interface NativeSocketConnectionManager ()
 @property (strong, nonatomic) NSURLSession *session;
 @property (strong, nonatomic) NSURLSessionWebSocketTask *webSocketTask;
 @property (assign, nonatomic) BOOL isConnected;
-@property (assign, nonatomic)BOOL isEnablePrimeAPI;
 @end
 
 @implementation NativeSocketConnectionManager
@@ -24,7 +25,6 @@
     if (self) {
         NSURLSessionConfiguration *config = [NSURLSessionConfiguration defaultSessionConfiguration];
         _session = [NSURLSession sessionWithConfiguration:config];
-        _isEnablePrimeAPI = YES;
     }
     return self;
 }
@@ -110,12 +110,12 @@ didOpenWithProtocol:(NSString *) protocol{
 }
 
 - (nonnull NSURL *)createURL {
-    NSString *baseURL = _isEnablePrimeAPI ? @"wss://euc2.primeapi.io" : @"wss://stream.data.alpaca.markets/v2/iex";
+    NSString *baseURL = Constants.isEnablePrimeAPI ? @"wss://euc2.primeapi.io" : @"wss://stream.data.alpaca.markets/v2/iex";
     return [NSURL URLWithString: baseURL];
 }
 
 - (nonnull NSDictionary *)authDictionary {
-    if (_isEnablePrimeAPI) {
+    if (Constants.isEnablePrimeAPI) {
         return @{
             @"op": @"auth",
             @"key": @"412a1eadfd-aee20f3516-sz2frh"
@@ -131,7 +131,7 @@ didOpenWithProtocol:(NSString *) protocol{
 }
 
 - (nonnull NSDictionary *)livePriceSubcriptionDictionary:(nonnull NSArray<NSString *> *)assets {
-    if(_isEnablePrimeAPI) {
+    if(Constants.isEnablePrimeAPI) {
         return @{
             @"op": @"subscribe",
             @"pairs": assets,

@@ -32,17 +32,22 @@
     NetworkConnectionManager *manager = [[NetworkConnectionManager alloc] initWithAPIKey:Constants.apiKey
                                                                                apiSecret:Constants.apiSecret];
     _assetClient = [[MarketAssetClient alloc] initWithNetworkManager: manager];
-    _assetClient.requiredSymbol = @[@"AMZN", @"AAPL",/*@"MLGO", @"INTC", @"AMTM", @"ARCA", @"ANAB", @"ABNB"*/];
     _assetList = [Constants assetList];
+    [self setupSocketConnection];
+    [self setupUIComponents];
+    [self layoutContraints];
+}
+
+- (void)setupSocketConnection {
     
     // Insert either NativeSocket or SRWebSocket
     //NativeSocketConnectionManager *socketManager = [[NativeSocketConnectionManager alloc] init];
     SocketConnectionManager *socketManager = [[SocketConnectionManager alloc] init];
-    
     _controller = [[TradeController alloc] initWithSocketEnabler:socketManager];
     _controller.handler = self;
-    [self setupUIComponents];
-    [self layoutContraints];
+    
+    // Show activity indicator since socket connection and authentication can take some time
+    [self showActivityIndicatorView];
 }
 
 - (void)layoutContraints {
