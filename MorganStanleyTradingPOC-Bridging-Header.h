@@ -11,3 +11,4 @@
 #import "AssetTableViewCell.h"
 #import "TradeController.h"
 #import "SocketConnectionEnabler.h"
+#import "ThreadedSocketConnectionManager.h"

@@ -10,6 +10,8 @@
 #import "MarketViewController.h"
 #import "MorganStanleyTradingPOC-Swift.h"
 
+#define USE_SWIFT_API 1
+
 @implementation LandingTabViewController
 
 - (void)viewDidLoad {
@@ -24,16 +26,16 @@
     // Start loading Trade Swift View
     dispatch_group_enter(group);
 #if USE_SWIFT_API
+    [TradeViewCoordinator makeTradeViewControllerWithCompletion:^(UIViewController * _Nonnull viewController) {
+        tradeVC = viewController;
+        dispatch_group_leave(group);
+    }];
+#else
     TradeViewController *tvc = [[TradeViewController alloc] init];
     tradeVC = tvc;
     tradeVC.title = @"Trade";
     tradeVC.tabBarItem.image = [UIImage imageNamed:@"home_icon"];
     dispatch_group_leave(group);
-#else
-    [TradeViewCoordinator makeTradeViewControllerWithCompletion:^(UIViewController * _Nonnull viewController) {
-        tradeVC = viewController;
-        dispatch_group_leave(group);
-    }];
 #endif
 
     // Start loading News Swift View
