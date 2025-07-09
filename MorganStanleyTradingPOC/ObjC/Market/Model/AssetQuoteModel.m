@@ -14,13 +14,9 @@
                                forAsset: (NSString *)asset {
     self = [super init];
     if (self) {
-        
-        NSString *bidPriceKey = [Constants bidPriceKey];
-        NSString *askPriceKey = [Constants askPriceKey];
-
         _assetName = asset;
-        _bidPrice = [dict[bidPriceKey] floatValue];
-        _askPrice = [dict[askPriceKey] floatValue];
+        _bidPrice = [dict[@"bidPrice"] floatValue];
+        _askPrice = [dict[@"askPrice"] floatValue];
     }
     return self;
 }

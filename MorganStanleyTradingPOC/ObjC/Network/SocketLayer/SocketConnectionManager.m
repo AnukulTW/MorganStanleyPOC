@@ -16,7 +16,6 @@
 @property (strong, nonatomic, nonnull) NSMutableDictionary <NSString *, AssetPriceModel*>* livePriceDictionary;
 @property (nonatomic, strong) dispatch_queue_t socketQueue;
 @property (nonatomic, strong) NSMutableDictionary <NSString*, AssetPriceModel *>*pendingMessages;
-@property (nonatomic, strong) SocketConnectionDefaults *defaults;
 @property (assign, nonatomic)BOOL isEnablePrimeAPI;
 @end
 
@@ -33,8 +32,6 @@
         self.webSocket.delegate = self;
         self.webSocket.delegateDispatchQueue = _socketQueue;
         _livePriceDictionary = [[NSMutableDictionary alloc]init];
-        _defaults = [[SocketConnectionDefaults alloc] init];
-        _defaults.isEnablePrimeAPI = _isEnablePrimeAPI;
     }
     
     return self;

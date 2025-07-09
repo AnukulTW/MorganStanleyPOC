@@ -32,15 +32,7 @@ public class Constants: NSObject {
         isEnablePrimeAPI ? primeAPIBaseURL : alpacaBaseURL
     }
     
-    public static var assetNameKey: String {
-        isEnablePrimeAPI ? "sym" : "S"
-    }
-        
-    public static var bidPriceKey: String {
-        isEnablePrimeAPI ? "bid" : "bp"
-    }
-
-    public static var askPriceKey: String {
-        isEnablePrimeAPI ? "ask" : "ap"
-    }
+    public static var assetList: [String] {
+         isEnablePrimeAPI ? ["EURUSD", "AUDUSD", "USDJPY", "USDCAD", "GBPUSD", "EURGBP", "AUDCAD", "USDHKD"] : ["AMZN", "AAPL", "MLGO", "INTC", "AMTM", "ANAB", "ABNB"]
+     }
 }

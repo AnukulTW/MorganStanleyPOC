@@ -10,12 +10,6 @@
 #import "SocketConnectionEnabler.h"
 NS_ASSUME_NONNULL_BEGIN
 
-//@protocol SocketConnectionManagerDelegate <NSObject>
-//- (void)didReceivePrice:(AssetPriceModel *)priceModel forAsset:(NSString *)asset;
-//- (void)connectionEstablishSuccess;
-//@end
-
-
 @interface SocketConnectionManager : NSObject <SocketConnectionEnabler>
 @property (nonatomic, weak) id<SocketConnectionManagerDelegate> connectionDelegate;
 - (void)subscribeAssets:(NSArray<NSString *>*)assets;

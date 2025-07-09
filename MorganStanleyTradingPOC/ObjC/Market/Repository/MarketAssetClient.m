@@ -97,7 +97,10 @@
     NSURL *url = [NSURL URLWithString:urlString];
     NSString *commaSeparateQuotes = [symbols componentsJoinedByString: @","];
     NSString *encodedString = [commaSeparateQuotes stringByAddingPercentEncodingWithAllowedCharacters: [NSCharacterSet URLQueryAllowedCharacterSet]];
-    NSDictionary *queryParams = @{ @"pairs": encodedString };
+    
+    NSString *parameterString = Constants.isEnablePrimeAPI ? @"pairs" : @"symbols";
+    NSDictionary *queryParams = @{ parameterString: encodedString };
+
     [self.networkManager sendRequestWithURL:url
                                      method:@"GET"
                                 queryParams:queryParams
@@ -122,7 +125,16 @@
     NSMutableArray *assetQuoteArray = [[NSMutableArray alloc]initWithCapacity: [symbols count]];
     if(quotesDict != NULL) {
         [quotesDict enumerateKeysAndObjectsUsingBlock:^(NSString *assetName, NSDictionary *quoteDict, BOOL *stop) {
-            AssetQuoteModel *model = [[AssetQuoteModel alloc]initWithQuoteDictionary:quoteDict
+            
+            Float32 bidPrice = Constants.isEnablePrimeAPI ? [quoteDict[@"bid"] floatValue] : [quoteDict[@"bp"] floatValue];
+            Float32 askPrice = Constants.isEnablePrimeAPI ? [quoteDict[@"ask"] floatValue] : [quoteDict[@"ap"] floatValue];
+            
+            NSDictionary *dict = @{
+                @"bidPrice": @(bidPrice),
+                @"askPrice": @(askPrice)
+            };
+            
+            AssetQuoteModel *model = [[AssetQuoteModel alloc]initWithQuoteDictionary:dict
                                                                             forAsset:assetName];
             if(model != NULL) {
                 [assetQuoteArray addObject: model];

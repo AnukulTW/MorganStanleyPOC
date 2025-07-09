@@ -14,6 +14,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface MarketAssetClient : NSObject
 
 - (instancetype)initWithNetworkManager:(id<NetworkManaging>)networkManager;
+// requiredSymbol This can be removed - Anukul
 @property (nonatomic, strong) NSArray<NSString *> *requiredSymbol;
 - (void)fetchMarketAssetWithCompletion:(void (^)(NSArray<AssetQuoteModel *> * _Nullable result, NSArray<NSString *> * _Nullable list, NSError * _Nullable error))completion;
 - (void)fetchLastQuoteForAsset:(NSArray<NSString *> *)symbols

@@ -76,8 +76,6 @@
 }
 
 - (void)subscribeAssets:(NSArray<NSString *>*)assets {
-    // NSDictionary *authPayload = @{@"action": @"subscribe", @"quotes": @[@"AMZN", @"AAPL",@"MLGO", @"INTC"]};
-    //NSDictionary *authPayload = @{@"action": @"subscribe", @"quotes": @[@"AVAX/USD", @"BTC/USD"]};
     NSDictionary *subscriptionDict = [self livePriceSubcriptionDictionary: assets];
     NSData *jsonData = [NSJSONSerialization dataWithJSONObject:subscriptionDict options:0 error:nil];
     NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];

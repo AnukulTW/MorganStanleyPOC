@@ -10,6 +10,7 @@
 #import "AssetPriceModel.h"
 #import "SocketConnectionDefaults.h"
 #import "AssetQuoteModel.h"
+#import "MorganStanleyTradingPOC-Swift.h"
 
 @interface TradeController()<SocketConnectionManagerDelegate>
 @property (strong, nonatomic, nonnull) NSMutableDictionary <NSString *, AssetPriceModel*>* livePriceDictionary;
@@ -23,7 +24,7 @@
     self.socketEnabler = enabler;
     self.socketEnabler.connectionDelegate = self;
     _connectionDefaults = [[SocketConnectionDefaults alloc] init];
-    _connectionDefaults.isEnablePrimeAPI = YES;
+    _connectionDefaults.isEnablePrimeAPI = Constants.isEnablePrimeAPI;
     _livePriceDictionary = [[NSMutableDictionary alloc] init];
     [self startSocket];
     return self;
@@ -41,17 +42,23 @@
         responseData = [message dataUsingEncoding:NSUTF8StringEncoding];
     }
     NSError *error;
+    NSDictionary* responseDict;
     id response = [NSJSONSerialization JSONObjectWithData:responseData options:0 error:&error];
-    if([response isKindOfClass: [NSDictionary class]]) {
-        NSDictionary* responseDict = response;
-        NSArray<NSString*> *keys = responseDict.allKeys;
-        if(responseDict != NULL && [keys containsObject: @"sym"]) {
-            [self parseResponse:responseDict];
-        }
+    
+    if([response isKindOfClass: [NSArray class]]) {
+        responseDict = [response lastObject];
+    } else if([response isKindOfClass: [NSDictionary class]]) {
+        responseDict = response;
+    }
+    
+    NSArray<NSString*> *keys = responseDict.allKeys;
+    NSString *assetNameKey = [self.connectionDefaults assetNameKey];
+    if(responseDict != NULL && [keys containsObject: assetNameKey]) {
+        [self parseResponse:responseDict];
     }
 }
 
-- (void)connectionEstablishSuccess{
+- (void)connectionEstablishSuccess {
     [self.handler connectionEstablishSuccess];
 }
 

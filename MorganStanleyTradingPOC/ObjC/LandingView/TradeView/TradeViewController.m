@@ -29,10 +29,11 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    NetworkConnectionManager *manager = [[NetworkConnectionManager alloc] initWithAPIKey:Constants.apiKey apiSecret:Constants.apiSecret];
-    _assetClient = [[MarketAssetClient alloc] initWithNetworkManager:manager];
+    NetworkConnectionManager *manager = [[NetworkConnectionManager alloc] initWithAPIKey:Constants.apiKey
+                                                                               apiSecret:Constants.apiSecret];
+    _assetClient = [[MarketAssetClient alloc] initWithNetworkManager: manager];
     _assetClient.requiredSymbol = @[@"AMZN", @"AAPL",/*@"MLGO", @"INTC", @"AMTM", @"ARCA", @"ANAB", @"ABNB"*/];
-    _assetList = @[@"EURUSD", @"AUDUSD", @"USDJPY", @"USDCAD", @"GBPUSD", @"EURGBP", @"AUDCAD", @"USDHKD"];
+    _assetList = [Constants assetList];
     
     // Insert either NativeSocket or SRWebSocket
     //NativeSocketConnectionManager *socketManager = [[NativeSocketConnectionManager alloc] init];
@@ -40,7 +41,6 @@
     
     _controller = [[TradeController alloc] initWithSocketEnabler:socketManager];
     _controller.handler = self;
-    [self fetchLastQuotes];
     [self setupUIComponents];
     [self layoutContraints];
 }
@@ -107,12 +107,11 @@
     __weak typeof(self) weakSelf = self;
     [_assetClient fetchMarketAssetWithCompletion:^(NSArray<AssetQuoteModel *> * _Nullable result, NSArray<NSString *> * _Nullable list, NSError * _Nullable error) {
             [weakSelf reloadWithAssetList:result];
-        [weakSelf subscribeAssetLivePriceConnection:_assetList];
+        [weakSelf subscribeAssetLivePriceConnection: weakSelf.assetList];
     }];
 }
 
 - (void)fetchLastQuotes {
-    
     __weak typeof(self) weakSelf = self;
     [_assetClient fetchLastQuoteForAsset: _assetList
                               completion:^(NSArray<AssetQuoteModel *> * _Nullable result, NSError * _Nullable error) {
@@ -173,7 +172,6 @@
         }
     }
 }
-
 
 - (void)showActivityIndicatorView {
     _activityView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleMedium];
