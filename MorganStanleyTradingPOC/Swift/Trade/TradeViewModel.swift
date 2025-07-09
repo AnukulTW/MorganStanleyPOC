@@ -20,7 +20,7 @@ class TradeViewModel: NSObject, ObservableObject, SymbolsHandler {
                                                apiSecret: Constants.apiSecret)
         self.assetClient = MarketAssetClient(networkManager: manager)
         self.requiredSymbols = Constants.assetList // Array<String>
-        self.assetClient.requiredSymbol = requiredSymbols
+        //self.assetClient.requiredSymbol = requiredSymbols
 
         // Initialize trade controller with socket enabler
         self.controller = TradeController(socketEnabler: SocketConnectionManager())

@@ -24,15 +24,16 @@
     // Start loading Trade Swift View
     dispatch_group_enter(group);
 #if USE_SWIFT_API
+    TradeViewController *tvc = [[TradeViewController alloc] init];
+    tradeVC = tvc;
+    tradeVC.title = @"Trade";
+    tradeVC.tabBarItem.image = [UIImage imageNamed:@"home_icon"];
+    dispatch_group_leave(group);
+#else
     [TradeViewCoordinator makeTradeViewControllerWithCompletion:^(UIViewController * _Nonnull viewController) {
         tradeVC = viewController;
         dispatch_group_leave(group);
     }];
-#else
-    TradeViewController *tradeVC = [[TradeViewController alloc] init];
-    tradeVC.title = @"Trade";
-    tradeVC.tabBarItem.image = [UIImage imageNamed:@"home_icon"];
-    dispatch_group_leave(group);
 #endif
 
     // Start loading News Swift View
