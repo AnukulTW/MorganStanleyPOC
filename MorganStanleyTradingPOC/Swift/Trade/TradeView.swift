@@ -25,7 +25,7 @@ struct TradeView: View {
                 } else {
                     List(viewModel.assetList, id: \.self) { symbol in
                         AssetRow(symbol: symbol,
-                                 priceModel: (viewModel.livePrices[symbol]!))
+                                 priceModel: (viewModel.getAssetPriceModel(symbol: symbol)))
                     }
                 }
             }
@@ -39,27 +39,30 @@ struct TradeView: View {
 
 struct AssetRow: View {
     let symbol: String
-    let priceModel: AssetPriceModel
+    let priceModel: AssetPriceModelWrapper
 
     var body: some View {
-        HStack(spacing: 12) {
-            Text(symbol)
-                .font(.headline)
-                .foregroundColor(.primary)
-            Spacer()
-            HStack(spacing: 40){
-                Text(String(priceModel.askPrice.price))
-                    .font(.body)
-                    .foregroundColor(priceModel.askPrice.direction == .up ? .green : .red)
-                    .padding(.leading)
-                Text(String(priceModel.bidPrice.price))
-                    .font(.body)
-                    .foregroundColor(priceModel.bidPrice.direction == .up ? .green : .red)
+            HStack(spacing: 12) {
+                Text(symbol)
+                    .font(.headline)
+                    .foregroundColor(.primary)
+                    .frame(width: 120, alignment: .leading)
+                
+                HStack(spacing: 10) {
+                    Text(String(priceModel.assetPriceModel.askPrice.price))
+                        .font(.body)
+                        .foregroundColor(priceModel.assetPriceModel.askPrice.direction == .up ? .green : .red)
+                        .frame(maxWidth: .infinity)
+
+                    Text(String(priceModel.assetPriceModel.bidPrice.price))
+                        .font(.body)
+                        .foregroundColor(priceModel.assetPriceModel.bidPrice.direction == .up ? .green : .red)
+                        .frame(maxWidth: .infinity)
+                }
             }
-            
-        }
-        .padding(.vertical, 8)
-    }
+            .padding(.vertical, 6.0)
+            .padding(.horizontal, 6.0)
+     }
 }
 
 #if DEBUG

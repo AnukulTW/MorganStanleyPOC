@@ -7,7 +7,7 @@
 
 class TradeViewModel: NSObject, ObservableObject, SymbolsHandler {
     @Published var assetList: [String] = []
-    @Published var livePrices: [String: AssetPriceModel] = [:]
+    @Published var livePrices: [String: AssetPriceModelWrapper] = [:]
     @Published var isLoading = true
 
     private let controller: TradeController
@@ -35,7 +35,6 @@ class TradeViewModel: NSObject, ObservableObject, SymbolsHandler {
         livePrices = [:]
         isLoading = true
         // Subscribe and connect socket
-        controller.subscribeAssets(requiredSymbols)
         controller.startSocket()
     }
 
@@ -47,7 +46,7 @@ class TradeViewModel: NSObject, ObservableObject, SymbolsHandler {
     func didReceivePrice(_ priceModel: AssetPriceModel, forAsset asset: String) {
         Task { @MainActor in
             // Convert price to string; adjust formatting as needed
-            livePrices[asset] = priceModel
+            livePrices[asset] = AssetPriceModelWrapper(assetPriceModel: priceModel)
         }
     }
 
@@ -61,11 +60,24 @@ class TradeViewModel: NSObject, ObservableObject, SymbolsHandler {
                     self.controller.updateAssetLastQuote(quotes)
                     for symbol in self.assetList {
                         let priceModel = self.controller.fetchPrice(symbol)
-                        self.livePrices[symbol] = priceModel
+                        self.livePrices[symbol] = AssetPriceModelWrapper(assetPriceModel: priceModel)
                     }
                 }
+                self.controller.subscribeAssets(self.requiredSymbols)
                 self.isLoading = false
             }
         }
+    }
+    
+    func getAssetPriceModel(symbol: String) -> AssetPriceModelWrapper {
+        return livePrices[symbol]!
+    }
+}
+
+
+class AssetPriceModelWrapper {
+    var assetPriceModel: AssetPriceModel
+    init(assetPriceModel: AssetPriceModel) {
+        self.assetPriceModel = assetPriceModel
     }
 }

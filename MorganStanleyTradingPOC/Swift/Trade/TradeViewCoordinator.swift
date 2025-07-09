@@ -14,9 +14,9 @@ import SwiftUI
         DispatchQueue.main.async {
             let viewModel = TradeViewModel()
             let view = TradeView(viewModel: viewModel)
-                    let hostingVC = UIHostingController(rootView: view)
-                    // Call completion immediately — we're on the main actor
-                    completion(hostingVC)
-                }
+            let hostingVC = UIHostingController(rootView: view)
+            // Call completion immediately — we're on the main actor
+            completion(hostingVC)
         }
+    }
 }
