@@ -9,6 +9,7 @@
 import SwiftUI
 import Combine
 
+/*
 struct TradeView: View {
     @ObservedObject private var viewModel: TradeViewModel
     
@@ -57,4 +58,65 @@ struct AssetRow: View {
         .padding(.vertical, 8)
     }
 }
+*/
+
+import SwiftUI
+
+@MainActor
+
+
+struct TradeView: View {
+    @ObservedObject private var viewModel: TradeViewModel
+    
+    init(viewModel: TradeViewModel) {
+        self.viewModel = viewModel
+    }
+
+    var body: some View {
+        NavigationView {
+            Group {
+                if viewModel.isLoading {
+                    ProgressView("Loading…")
+                } else {
+                    List(viewModel.assetList, id: \ .self) { symbol in
+                        AssetRow(symbol: symbol,
+                                 price: viewModel.livePrices[symbol] ?? "--")
+                    }
+                }
+            }
+            .navigationTitle("Market Watch")
+            .onAppear {
+                viewModel.start()
+            }
+        }
+    }
+}
+
+struct AssetRow: View {
+    let symbol: String
+    let price: String
+
+    var body: some View {
+        HStack(spacing: 12) {
+            Text(symbol)
+                .font(.headline)
+                .foregroundColor(.primary)
+            Spacer()
+            Text(price)
+                .font(.body)
+                .foregroundColor(.green)
+        }
+        .padding(.vertical, 8)
+    }
+}
+
+#if DEBUG
+struct TradeView_Previews: PreviewProvider {
+    static var previews: some View {
+        TradeView()
+    }
+}
+#endif
+
+
 
