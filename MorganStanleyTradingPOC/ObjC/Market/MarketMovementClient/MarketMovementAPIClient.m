@@ -22,7 +22,7 @@
 }
 
 
-- (void)fetchTopMarketMovers:(void (^)(NSMutableDictionary<NSString* ,NSArray<MarketMoverModel*>* >* _Nullable , NSError* _Nullable))completion {
+- (void)fetchMarketTopMovers:(void (^)(NSMutableDictionary<NSString* ,NSArray<MarketMoverModel*>* >* _Nullable , NSError* _Nullable))completion {
     NSURL *baseURL = [[NSURL alloc]initWithString: @"https://data.alpaca.markets/v1beta1/screener/stocks/movers"];
     NSURLComponents *components = [NSURLComponents componentsWithURL:baseURL resolvingAgainstBaseURL:NO];
     NSURLQueryItem *topMoversQueryItem = [NSURLQueryItem queryItemWithName:@"top"

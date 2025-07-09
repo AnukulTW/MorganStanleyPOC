@@ -7,7 +7,6 @@
 
 #import "LandingTabViewController.h"
 #import "TradeViewController.h"
-#import "NewsListViewController.h"
 #import "MarketViewController.h"
 #import "MorganStanleyTradingPOC-Swift.h"
 

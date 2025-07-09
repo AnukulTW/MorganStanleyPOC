@@ -16,6 +16,8 @@
 @property (nonatomic, nonnull ,strong) MarketMovementAPIClient *client;
 @property (nonatomic, strong) UIScrollView *scrollView;
 @property (nonatomic, strong) UIView *scrollContentView;
+@property (nonatomic, strong) dispatch_queue_t networkOperationQueue;
+
 
 @end
 
@@ -23,18 +25,9 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    
+    _networkOperationQueue = dispatch_queue_create("com.example.networkOperationQueue", DISPATCH_QUEUE_CONCURRENT);
     _client = [[MarketMovementAPIClient alloc]init];
-    
-    [_client fetchTopMarketMovers:^(NSMutableDictionary<NSString *,NSArray<MarketMoverModel *> *> * _Nullable marketMovers, NSError * _Nullable error) {
-        [self displayTopThreeGainers: marketMovers];
-    }];
-  
-    
-    [_client fetchActiveStocks:^(NSArray<ActiveStockModel *> * _Nullable activeStocks, NSError * _Nullable) {
-        [self displayTopThreeActiveStocks: activeStocks];
-    }];
-    
+    [self fetchData];
     [self setupUIComponents];
     [self layoutContraints];
 }
@@ -140,5 +133,29 @@
 - (void)viewAllMarketMovers {
     
 }
+
+- (void)fetchData {
+    [self fetchActiveStocks];
+    [self fetchMarketTopMovers];
+}
+
+- (void)fetchActiveStocks {
+    __weak typeof(self) weakSelf = self;
+    dispatch_async(_networkOperationQueue, ^{
+        [weakSelf.client fetchActiveStocks:^(NSArray<ActiveStockModel *> * _Nullable activeStocks, NSError * _Nullable error) {
+            [self displayTopThreeActiveStocks: activeStocks];
+        }];
+    });
+}
+
+- (void)fetchMarketTopMovers {
+    __weak typeof(self) weakSelf = self;
+    dispatch_async(_networkOperationQueue, ^{
+        [weakSelf.client fetchMarketTopMovers:^(NSMutableDictionary<NSString *,NSArray<MarketMoverModel *> *> * _Nullable marketMovers, NSError * _Nullable error) {
+            [self displayTopThreeGainers: marketMovers];
+        }];
+    });
+}
+
 
 @end

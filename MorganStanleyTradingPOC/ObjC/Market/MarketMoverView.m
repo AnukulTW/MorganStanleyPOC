@@ -89,7 +89,8 @@
     _marketTopGainerContentStackView = [[UIStackView alloc]init];
     _marketTopGainerContentStackView.translatesAutoresizingMaskIntoConstraints = NO;
     _marketTopGainerContentStackView.axis = UILayoutConstraintAxisVertical;
-    _marketTopGainerContentStackView.alignment = UIStackViewAlignmentLeading;
+    _marketTopGainerContentStackView.alignment = UIStackViewAlignmentFill;
+    _marketTopGainerContentStackView.distribution = UIStackViewDistributionFill;
     _marketTopGainerContentStackView.spacing = 15.0;
 }
 
@@ -97,7 +98,8 @@
     _marketTopLoserContentStackView = [[UIStackView alloc]init];
     _marketTopLoserContentStackView.translatesAutoresizingMaskIntoConstraints = NO;
     _marketTopLoserContentStackView.axis = UILayoutConstraintAxisVertical;
-    _marketTopLoserContentStackView.alignment = UIStackViewAlignmentLeading;
+    _marketTopLoserContentStackView.alignment = UIStackViewAlignmentFill;
+    _marketTopLoserContentStackView.distribution = UIStackViewDistributionFill;
     _marketTopLoserContentStackView.spacing = 15.0;
 }
 
@@ -105,7 +107,7 @@
     _marketTopGainerStackView = [[UIStackView alloc]init];
     _marketTopGainerStackView.translatesAutoresizingMaskIntoConstraints = NO;
     _marketTopGainerStackView.axis = UILayoutConstraintAxisHorizontal;
-    _marketTopGainerStackView.alignment = UIStackViewAlignmentLeading;
+    _marketTopGainerStackView.alignment = UIStackViewAlignmentFill;
     _marketTopGainerStackView.distribution = UIStackViewDistributionFillEqually;
     _marketTopGainerStackView.spacing = 5.0;
 }
@@ -114,7 +116,7 @@
     _marketTopLoserStackView = [[UIStackView alloc]init];
     _marketTopLoserStackView.translatesAutoresizingMaskIntoConstraints = NO;
     _marketTopLoserStackView.axis = UILayoutConstraintAxisHorizontal;
-    _marketTopLoserStackView.alignment = UIStackViewAlignmentLeading;
+    _marketTopLoserStackView.alignment = UIStackViewAlignmentFill;
     _marketTopLoserStackView.distribution = UIStackViewDistributionFillEqually;
     _marketTopLoserStackView.spacing = 5.0;
 }
