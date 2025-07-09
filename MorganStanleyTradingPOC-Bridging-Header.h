@@ -4,3 +4,10 @@
 
 #import "MarketAssetClient.h"
 #import "NetworkConnectionManager.h"
+#import "AssetModel.h"
+#import "AssetQuoteModel.h"
+#import "PriceModel.h"
+#import "SocketConnectionManager.h"
+#import "AssetTableViewCell.h"
+#import "TradeController.h"
+#import "SocketConnectionEnabler.h"
