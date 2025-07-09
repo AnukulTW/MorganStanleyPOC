@@ -9,62 +9,7 @@
 import SwiftUI
 import Combine
 
-/*
-struct TradeView: View {
-    @ObservedObject private var viewModel: TradeViewModel
-    
-    init(viewModel: TradeViewModel) {
-        self.viewModel = viewModel
-    }
-
-    var body: some View {
-        NavigationView {
-            List(viewModel.assetList, id: \.symbol) { asset in
-                AssetRow(asset: asset, livePrice: viewModel.livePrices[asset.symbol] ?? "--")
-                    .padding(.vertical, 4)
-            }
-            .navigationTitle("Market Watch")
-            .onAppear {
-                viewModel.fetchAssets()
-                viewModel.fetchLastQuotes()
-            }
-        }
-    }
-}
-
-struct AssetRow: View {
-    let asset: AssetModel
-    let livePrice: String
-
-    var body: some View {
-        HStack(spacing: 12) {
-            VStack(alignment: .leading, spacing: 4) {
-                Text(asset.name)
-                    .font(.headline)
-                    .foregroundColor(.primary)
-
-                Text(asset.symbol)
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
-            }
-
-            Spacer()
-
-            Text(livePrice)
-                .font(.title3)
-                .bold()
-                .foregroundColor(.green)
-        }
-        .padding(.vertical, 8)
-    }
-}
-*/
-
-import SwiftUI
-
 @MainActor
-
-
 struct TradeView: View {
     @ObservedObject private var viewModel: TradeViewModel
     
@@ -78,9 +23,9 @@ struct TradeView: View {
                 if viewModel.isLoading {
                     ProgressView("Loading…")
                 } else {
-                    List(viewModel.assetList, id: \ .self) { symbol in
+                    List(viewModel.assetList, id: \.self) { symbol in
                         AssetRow(symbol: symbol,
-                                 price: viewModel.livePrices[symbol] ?? "--")
+                                 priceModel: (viewModel.livePrices[symbol]!))
                     }
                 }
             }
@@ -94,7 +39,7 @@ struct TradeView: View {
 
 struct AssetRow: View {
     let symbol: String
-    let price: String
+    let priceModel: AssetPriceModel
 
     var body: some View {
         HStack(spacing: 12) {
@@ -102,9 +47,16 @@ struct AssetRow: View {
                 .font(.headline)
                 .foregroundColor(.primary)
             Spacer()
-            Text(price)
-                .font(.body)
-                .foregroundColor(.green)
+            HStack(spacing: 40){
+                Text(String(priceModel.askPrice.price))
+                    .font(.body)
+                    .foregroundColor(priceModel.askPrice.direction == .up ? .green : .red)
+                    .padding(.leading)
+                Text(String(priceModel.bidPrice.price))
+                    .font(.body)
+                    .foregroundColor(priceModel.bidPrice.direction == .up ? .green : .red)
+            }
+            
         }
         .padding(.vertical, 8)
     }
@@ -117,6 +69,4 @@ struct TradeView_Previews: PreviewProvider {
     }
 }
 #endif
-
-
 

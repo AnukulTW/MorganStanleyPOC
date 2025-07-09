@@ -5,61 +5,9 @@
 //  Created by Shrey Shrivastava on 07/07/25.
 //
 
-/*
-final class TradeViewModel: NSObject, ObservableObject {
-    @Published var assetList: [AssetQuoteModel] = []
-    @Published var livePrices: [String: String] = [:]
-    
-    private let socket: SocketConnectionEnabler
-    private let assetClient: MarketAssetClient
-    private let tradeController = TradeController()
-    private let requiredSymbols = ["AMZN", "AAPL", "MLGO", "INTC", "AMTM", "ARCA", "ANAB", "ABNB"]
-
-    init(socketConnectionEnabler: SocketConnectionEnabler) {
-            let manager = NetworkConnectionManager(apiKey: Constants.apiKey,
-                                                   apiSecret: Constants.apiSecret)
-            self.socket = socketConnectionEnabler
-            self.tradeController.handler = self
-            self.assetClient = MarketAssetClient(networkManager: manager)
-            super.init()
-            self.assetClient.requiredSymbol = requiredSymbols
-        }
-    
-
-    func fetchAssets() {
-        assetClient.fetchMarketAsset { [weak self] result, list, error in
-            DispatchQueue.main.async {
-                self?.assetList = result ?? []
-                self?.socket.subscribeAssets(list ?? [])
-            }
-        }
-    }
-
-    func fetchLastQuotes() {
-        assetClient.fetchLastQuote(forAsset: requiredSymbols) { [weak self] quotes, error in
-            DispatchQueue.main.async {
-                self?.tradeController.updateAssetLastQuote(quotes ?? [])
-            }
-        }
-    }
-}
-
-extension TradeViewModel: SymbolsHandler {
-    func connectionEstablishSuccess() {
-        <#code#>
-    }
-    
-    func didReceivePrice(_ priceModel: AssetPriceModel, forAsset asset: String) {
-        DispatchQueue.main.async {
-            self.tradeController.
-        }
-    }
-}
-*/
-
 class TradeViewModel: NSObject, ObservableObject, SymbolsHandler {
     @Published var assetList: [String] = []
-    @Published var livePrices: [String: String] = [:]
+    @Published var livePrices: [String: AssetPriceModel] = [:]
     @Published var isLoading = true
 
     private let controller: TradeController
@@ -99,7 +47,7 @@ class TradeViewModel: NSObject, ObservableObject, SymbolsHandler {
     func didReceivePrice(_ priceModel: AssetPriceModel, forAsset asset: String) {
         Task { @MainActor in
             // Convert price to string; adjust formatting as needed
-            livePrices[asset] = "\(priceModel.bidPrice)"
+            livePrices[asset] = priceModel
         }
     }
 
@@ -111,8 +59,9 @@ class TradeViewModel: NSObject, ObservableObject, SymbolsHandler {
                 if let quotes = result {
                     // Update controller and UI data
                     self.controller.updateAssetLastQuote(quotes)
-                    for quote in quotes {
-                        self.livePrices[quote.assetName] = "\(quote.askPrice)"
+                    for symbol in self.assetList {
+                        let priceModel = self.controller.fetchPrice(symbol)
+                        self.livePrices[symbol] = priceModel
                     }
                 }
                 self.isLoading = false
