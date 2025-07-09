@@ -15,24 +15,23 @@ struct TradeView: View {
     
     init(viewModel: TradeViewModel) {
         self.viewModel = viewModel
+        viewModel.start()
     }
 
     var body: some View {
-        NavigationView {
-            Group {
-                if viewModel.isLoading {
-                    ProgressView("Loading…")
-                } else {
-                    List(viewModel.assetList, id: \.self) { symbol in
-                        AssetRow(symbol: symbol,
-                                 priceModel: (viewModel.getAssetPriceModel(symbol: symbol)))
-                    }
-                }
+        createView()
+    }
+    
+    @ViewBuilder
+    func createView() -> some View {
+        if viewModel.isLoading {
+            ProgressView("Loading…")
+        } else {
+            List(viewModel.assetList, id: \.self) { symbol in
+                AssetRow(symbol: symbol,
+                         priceModel: (viewModel.getAssetPriceModel(symbol: symbol)))
             }
-            .navigationTitle("Market Watch")
-            .onAppear {
-                viewModel.start()
-            }
+            //.listStyle(.plain)
         }
     }
 }

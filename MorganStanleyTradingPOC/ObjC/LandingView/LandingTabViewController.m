@@ -28,6 +28,7 @@
 #if USE_SWIFT_API
     [TradeViewCoordinator makeTradeViewControllerWithCompletion:^(UIViewController * _Nonnull viewController) {
         tradeVC = viewController;
+        tradeVC.edgesForExtendedLayout = UIRectEdgeNone;
         dispatch_group_leave(group);
     }];
 #else
@@ -42,6 +43,7 @@
     dispatch_group_enter(group);
     [NewsFeedCoordinator makeNewsFeedViewControllerWithCompletion:^(UIViewController * _Nonnull viewController) {
         newsVC = viewController;
+        newsVC.edgesForExtendedLayout = UIRectEdgeNone;
         dispatch_group_leave(group);
     }];
 
