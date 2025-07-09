@@ -35,7 +35,7 @@
     TradeViewController *tvc = [[TradeViewController alloc] init];
     tradeVC = tvc;
     tradeVC.title = @"Trade";
-    tradeVC.tabBarItem.image = [UIImage imageNamed:@"home_icon"];
+    tradeVC.tabBarItem.image = [UIImage imageNamed:@"trade"];
     dispatch_group_leave(group);
 #endif
 
@@ -51,17 +51,17 @@
     MarketViewController *marketVC = [[MarketViewController alloc] init];
     UINavigationController *marketNav = [[UINavigationController alloc] initWithRootViewController:marketVC];
     marketVC.title = @"Market";
-    marketVC.tabBarItem.image = [UIImage imageNamed:@"market_icon"];
+    marketVC.tabBarItem.image = [UIImage systemImageNamed:@"dollarsign.circle"];
 
     // Once both Swift views are loaded...
     dispatch_group_notify(group, dispatch_get_main_queue(), ^{
         UINavigationController *tradeNav = [[UINavigationController alloc] initWithRootViewController:tradeVC];
         tradeVC.title = @"Trade";
-        tradeVC.tabBarItem.image = [UIImage imageNamed:@"home_icon"];
+        tradeVC.tabBarItem.image = [UIImage systemImageNamed:@"chart.line.uptrend.xyaxis"];
 
         UINavigationController *newsNav = [[UINavigationController alloc] initWithRootViewController:newsVC];
         newsVC.title = @"News";
-        newsVC.tabBarItem.image = [UIImage imageNamed:@"news_icon"];
+        newsVC.tabBarItem.image = [UIImage systemImageNamed:@"newspaper"];
 
         // Assign to tab bar controller
         self.viewControllers = @[tradeNav, marketNav, newsNav];
