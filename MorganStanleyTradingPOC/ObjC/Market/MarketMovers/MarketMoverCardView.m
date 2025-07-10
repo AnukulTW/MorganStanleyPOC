@@ -12,14 +12,19 @@
 @property (nonatomic, nonnull ,strong) UILabel *priceLabel;
 @property (nonatomic, nonnull ,strong) UILabel *percentageChangeLabel;
 @property (nonatomic, nonnull ,strong) UIStackView *contentStackView;
+@property (nonatomic, assign) MarketMoverCardViewFlowType flowType;
+@property (nonatomic, nonnull, strong) UIColor *textColor;
 
 @end
 
 @implementation MarketMoverCardView
 
-- (instancetype)initWithFrame:(CGRect)frame {
-    self = [super initWithFrame:frame];
+
+- (instancetype)initWithFlowType:(MarketMoverCardViewFlowType)flowType {
+    self = [super init];
     if (self) {
+        _flowType = flowType;
+        _textColor = _flowType == CardFlow ? [UIColor whiteColor] : [UIColor blackColor];
         [self setupUIComponents];
         [self layoutContraints];
     }
@@ -29,8 +34,10 @@
 - (void)layoutSubviews {
     [super layoutSubviews];
 
-    self.layer.cornerRadius = 10.0;
-    self.layer.masksToBounds = YES;
+    if(_flowType == CardFlow) {
+        self.layer.cornerRadius = 10.0;
+        self.layer.masksToBounds = YES;
+    }
 }
 
 
@@ -45,21 +52,21 @@
     _symbolNameLabel = [[UILabel alloc]init];
     _symbolNameLabel.translatesAutoresizingMaskIntoConstraints = NO;
     _symbolNameLabel.font = [UIFont boldSystemFontOfSize: 16.0];
-    _symbolNameLabel.textColor = [UIColor whiteColor];
+    _symbolNameLabel.textColor = _textColor;
 }
 
 - (void)setupPriceLabel {
     _priceLabel = [[UILabel alloc]init];
     _priceLabel.translatesAutoresizingMaskIntoConstraints = NO;
     _priceLabel.font = [UIFont boldSystemFontOfSize: 14.0];
-    _priceLabel.textColor = [UIColor whiteColor];
+    _priceLabel.textColor = _textColor;
 }
 
 - (void)setupPercentageChangeLabel {
     _percentageChangeLabel = [[UILabel alloc]init];
     _percentageChangeLabel.translatesAutoresizingMaskIntoConstraints = NO;
     _percentageChangeLabel.font = [UIFont systemFontOfSize: 13.0];
-    _percentageChangeLabel.textColor = [UIColor whiteColor];
+    _percentageChangeLabel.textColor = _textColor;
 }
 
 - (void)setupContentStackView {
@@ -92,6 +99,14 @@
 }
 
 - (void)configureWithMarketMover:(MarketMoverModel *)model isTopGainerCard: (BOOL) isTopGainerCard {
+
+    [self configureWithMarketMover: model];
+    
+    self.backgroundColor = isTopGainerCard ? [UIColor colorWithRed:0.0/255 green:128.0/255 blue:0.0/255 alpha:1.0] :
+        [UIColor colorWithRed:205.0/255 green: 28.0/255 blue: 24.0/255 alpha:1.0];
+}
+
+- (void)configureWithMarketMover:(MarketMoverModel *)model {
     _symbolNameLabel.text = model.assetName;
     _priceLabel.text = [NSString stringWithFormat:@"%.2f", model.price];
     NSString *percentageChangeString = [[NSString stringWithFormat:@"%.2f", model.percent_change] stringByAppendingFormat: @"%%"];
@@ -99,9 +114,8 @@
     NSString *bracketPercentageString = [NSString stringWithFormat:@"(%@)", percentageChangeString];
     NSString *valueChangeString = [NSString stringWithFormat:@"%.2f", model.change];
     _percentageChangeLabel.text = [[valueChangeString stringByAppendingString: @" "] stringByAppendingString: bracketPercentageString];
-    
-    self.backgroundColor = isTopGainerCard ? [UIColor colorWithRed:0.0/255 green:128.0/255 blue:0.0/255 alpha:1.0] :
-        [UIColor colorWithRed:205.0/255 green: 28.0/255 blue: 24.0/255 alpha:1.0];
 }
+
+
 
 @end

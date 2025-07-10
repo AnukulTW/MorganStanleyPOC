@@ -52,6 +52,9 @@
     _viewAllMarketMoverButton.translatesAutoresizingMaskIntoConstraints = NO;
     [_viewAllMarketMoverButton setTitle: @"View All Market Movers" forState: UIControlStateNormal];
     [_viewAllMarketMoverButton setTitleColor:[UIColor blueColor] forState: UIControlStateNormal];
+    [_viewAllMarketMoverButton addTarget:self
+                                  action:@selector(didTapViewAllMarketMovers)
+                        forControlEvents:UIControlEventTouchUpInside];
 }
 
 - (void)setupTopGainerLabel {
@@ -186,7 +189,7 @@
     }
     
     for(int i=0; i<[marketMovers count]; i ++) {
-        MarketMoverCardView *view = [[MarketMoverCardView alloc]init];
+        MarketMoverCardView *view = [[MarketMoverCardView alloc]initWithFlowType: CardFlow];
         view.translatesAutoresizingMaskIntoConstraints = NO;
         [stackView addArrangedSubview:view];
         [view configureWithMarketMover: marketMovers[i]

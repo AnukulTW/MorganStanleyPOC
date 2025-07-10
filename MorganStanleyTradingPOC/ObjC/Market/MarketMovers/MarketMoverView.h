@@ -6,7 +6,7 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "Model/MarketMoverModel.h"
+#import "MarketMoverModel.h"
 
 
 @protocol MarketMoverActionDelegate <NSObject>
