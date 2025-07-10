@@ -127,9 +127,9 @@
         if (message.type == NSURLSessionWebSocketMessageTypeString) {
             NSString *dataString = message.string;
             if ([self.connectionDelegate respondsToSelector:@selector(didReceiveMessage:)]) {
-                dispatch_async(dispatch_get_main_queue(), ^{
+                //dispatch_async(dispatch_get_main_queue(), ^{
                     [self.connectionDelegate didReceiveMessage:dataString];
-                });
+                //});
             }
         }
 
