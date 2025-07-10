@@ -65,8 +65,9 @@
 }
 
 - (void)parseResponse: (NSDictionary *)responseDict {
-    dispatch_sync(_livePriceSerialQueue, ^{
-        NSLog(@"Check %d", NSThread.isMainThread);
+    __weak typeof(self) weakSelf = self;
+
+    dispatch_async(_livePriceSerialQueue, ^{
         NSArray<NSString*> *keys = responseDict.allKeys;
         NSString *assetNameKey = [self.connectionDefaults assetNameKey];
         NSString *bidPriceKey = [self.connectionDefaults bidPriceKey];
@@ -82,7 +83,7 @@
             
             NSString *assetName = responseDict[assetNameKey];
             
-            if(_livePriceDictionary[assetName] == NULL) {
+            if(weakSelf.livePriceDictionary[assetName] == NULL) {
                 
                 Float32 currentBidPrice = [responseDict[bidPriceKey] floatValue];
                 Float32 currentAskPrice = [responseDict[askPriceKey] floatValue];
@@ -97,12 +98,12 @@
                     @"askPriceDirection": @(askPriceDirection)
                 }];
                 
-                _livePriceDictionary[assetName] = priceModel;
+                weakSelf.livePriceDictionary[assetName] = priceModel;
                 [self.handler didReceivePrice: priceModel forAsset:assetName];
                 
             } else {
                 AssetPriceModel *model = [self updatePriceModel:responseDict];
-                _livePriceDictionary[assetName] = model;
+                weakSelf.livePriceDictionary[assetName] = model;
                 [self.handler didReceivePrice: model forAsset:assetName];
             }
         }
@@ -111,37 +112,34 @@
 }
 
 - (AssetPriceModel *)updatePriceModel: (NSDictionary *)responseDict {
-    @autoreleasepool {
-        
-        NSString *assetNameKey = [self.connectionDefaults assetNameKey];
-        NSString *bidPriceKey = [self.connectionDefaults bidPriceKey];
-        NSString *askPriceKey = [self.connectionDefaults askPriceKey];
-        
-        NSString *assetSymbol = responseDict[assetNameKey];
-        AssetPriceModel *previousModel = _livePriceDictionary[assetSymbol];
-        
-        Float32 previousBidPrice = previousModel.bidPrice.price;
-        Float32 previousAskPrice = previousModel.askPrice.price;
-        
-        Float32 currentBidPrice = [responseDict[bidPriceKey] floatValue];
-        Float32 currentAskPrice = [responseDict[askPriceKey] floatValue];
-        
-        if(currentAskPrice == previousAskPrice && currentBidPrice == previousBidPrice) {
-            return previousModel;
-        }
-        
-        NSUInteger bidPriceDirection = currentBidPrice > previousBidPrice ? 1 : 2;
-        NSUInteger askPriceDirection = currentAskPrice > previousAskPrice ? 1 : 2;
-        
-        [previousModel updatePriceModel: @{
-            @"bidPrice": @(currentBidPrice),
-            @"askPrice": @(currentAskPrice),
-            @"bidPriceDirection": @(bidPriceDirection),
-            @"askPriceDirection": @(askPriceDirection)
-        }];
-        
-        return  previousModel;
+    NSString *assetNameKey = [self.connectionDefaults assetNameKey];
+    NSString *bidPriceKey = [self.connectionDefaults bidPriceKey];
+    NSString *askPriceKey = [self.connectionDefaults askPriceKey];
+    
+    NSString *assetSymbol = responseDict[assetNameKey];
+    AssetPriceModel *previousModel = _livePriceDictionary[assetSymbol];
+    
+    Float32 previousBidPrice = previousModel.bidPrice.price;
+    Float32 previousAskPrice = previousModel.askPrice.price;
+    
+    Float32 currentBidPrice = [responseDict[bidPriceKey] floatValue];
+    Float32 currentAskPrice = [responseDict[askPriceKey] floatValue];
+    
+    if(currentAskPrice == previousAskPrice && currentBidPrice == previousBidPrice) {
+        return previousModel;
     }
+    
+    NSUInteger bidPriceDirection = currentBidPrice > previousBidPrice ? 1 : 2;
+    NSUInteger askPriceDirection = currentAskPrice > previousAskPrice ? 1 : 2;
+    
+    [previousModel updatePriceModel: @{
+        @"bidPrice": @(currentBidPrice),
+        @"askPrice": @(currentAskPrice),
+        @"bidPriceDirection": @(bidPriceDirection),
+        @"askPriceDirection": @(askPriceDirection)
+    }];
+    
+    return  previousModel;
 }
 
 - (void)subscribeAssets:(NSArray<NSString *>*)assets {
@@ -152,6 +150,7 @@
 - (nonnull AssetPriceModel *)fetchPrice:(nonnull NSString *)assetName {
     __block AssetPriceModel *value;
 
+    // Blocking the operation and will not proceed ahead
     dispatch_sync(_livePriceSerialQueue, ^{
         value = _livePriceDictionary[assetName];
     });
@@ -160,11 +159,12 @@
 }
 
 - (void)updateAssetLastQuote:(NSArray<AssetQuoteModel*> *)assetQuoteArray {
-    dispatch_sync(_livePriceSerialQueue, ^{
-        
+    __weak typeof(self) weakSelf = self;
+
+    dispatch_async(_livePriceSerialQueue, ^{
         for(AssetQuoteModel * assetQuote in assetQuoteArray) {
             NSString *assetName = assetQuote.assetName;
-            if(_livePriceDictionary[assetName] == NULL) {
+            if(weakSelf.livePriceDictionary[assetName] == NULL) {
                 
                 NSUInteger bidPriceDirection = 0;
                 NSUInteger askPriceDirection = 0;
@@ -176,7 +176,7 @@
                     @"askPriceDirection": @(askPriceDirection)
                 }];
                 
-                _livePriceDictionary[assetName] = priceModel;
+                weakSelf.livePriceDictionary[assetName] = priceModel;
             }
         }
     });

@@ -42,9 +42,9 @@
 - (void)setupSocketConnection {
     
     // Insert either NativeSocket or SRWebSocket or ThreadedScoketManager
-    ThreadedSocketConnectionManager *socketManager = [[ThreadedSocketConnectionManager alloc]init];
+    //ThreadedSocketConnectionManager *socketManager = [[ThreadedSocketConnectionManager alloc]init];
     //NativeSocketConnectionManager *socketManager = [[NativeSocketConnectionManager alloc] init];
-    //SocketConnectionManager *socketManager = [[SocketConnectionManager alloc] init];
+    SocketConnectionManager *socketManager = [[SocketConnectionManager alloc] init];
     _controller = [[TradeController alloc] initWithSocketEnabler:socketManager];
     _controller.handler = self;
     
