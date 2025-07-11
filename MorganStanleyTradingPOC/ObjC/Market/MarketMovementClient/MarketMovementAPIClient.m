@@ -6,101 +6,92 @@
 //
 
 #import "MarketMovementAPIClient.h"
+#import "NetworkManaging.h"
+#import "MorganStanleyTradingPOC-Swift.h"
 
 @interface MarketMovementAPIClient()
-@property (strong, nonatomic) NSURLSession *urlSession;
+@property (nonatomic, strong) id<NetworkManaging> networkManager;
 @end
 
 @implementation MarketMovementAPIClient
 
-- (instancetype)init {
+- (instancetype)initWithNetworkManager:(id<NetworkManaging>)networkManager {
     self = [super init];
     if (self) {
-        _urlSession = [NSURLSession sharedSession];
+        _networkManager = networkManager;
     }
     return self;
 }
 
 
 - (void)fetchMarketTopMovers:(void (^)(NSMutableDictionary<NSString* ,NSArray<MarketMoverModel*>* >* _Nullable , NSError* _Nullable))completion {
-    NSURL *baseURL = [[NSURL alloc]initWithString: @"https://data.alpaca.markets/v1beta1/screener/stocks/movers"];
-    NSURLComponents *components = [NSURLComponents componentsWithURL:baseURL resolvingAgainstBaseURL:NO];
-    NSURLQueryItem *topMoversQueryItem = [NSURLQueryItem queryItemWithName:@"top"
-                                                                     value: @"20"];
-    components.queryItems = @[topMoversQueryItem];
-    NSURL *finalURL = components.URL;
+    NSString *urlString = [NSString stringWithFormat:@"%@%@", Constants.alpacaBaseURL, Constants.marketMoversEndPoint];
+    NSURL *url = [NSURL URLWithString:urlString];
+    NSDictionary *queryParams = @{ @"top": @"20" };
     
-    NSMutableURLRequest *request = [[NSMutableURLRequest alloc]initWithURL:finalURL];
-    [request setHTTPMethod:@"GET"];
-    [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
-    [request setValue:@"PKYZ8FLRID2JGVKBLDJA" forHTTPHeaderField:@"APCA-API-KEY-ID"];
-    [request setValue:@"ECVgORFsR9EunOvZrSBqmSgz9VzPHOJqTc9C2g0H" forHTTPHeaderField:@"APCA-API-SECRET-KEY"];
+    [self.networkManager sendRequestWithURL:url
+                                     method:@"GET"
+                                queryParams:queryParams
+                                    headers:nil
+                                       body:nil
+                                 completion:^(NSData * _Nullable data, NSError * _Nullable error) {
+        [self parseMarketTopMovers:data completion:completion];
+    }];
+}
+
+- (void)parseMarketTopMovers:(nullable NSData *)data completion:(void (^)(NSMutableDictionary<NSString* ,NSArray<MarketMoverModel*>* >* _Nullable , NSError* _Nullable))completion {
+    NSError *error;
+    NSMutableDictionary *marketMovers = [[NSMutableDictionary alloc]init];
     
-    NSURLSessionDataTask *task = [_urlSession dataTaskWithRequest: request
-                                                completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+    if(data != NULL) {
+        NSError *decodingError;
+        NSDictionary *responseDictionary = [NSJSONSerialization JSONObjectWithData: data options: 0 error: &decodingError];
         
-        
-        NSMutableDictionary *marketMovers = [[NSMutableDictionary alloc]init];
-        
-        if(data != NULL) {
-            NSError *decodingError;
-            NSDictionary *responseDictionary = [NSJSONSerialization JSONObjectWithData: data options: 0 error: &decodingError];
-            
-            if(responseDictionary[@"gainers"] != NULL) {
-                NSArray *topGainResponse = responseDictionary[@"gainers"];
-                NSArray *topGainers = [MarketMoverModel initWithArray: topGainResponse];
-                marketMovers[@"gainers"] = topGainers;
-            }
-            
-            if(responseDictionary[@"losers"] != NULL) {
-                NSArray *topGainResponse = responseDictionary[@"losers"];
-                NSArray *topLosers = [MarketMoverModel initWithArray: topGainResponse];
-                marketMovers[@"losers"] = topLosers;
-            }
+        if(responseDictionary[@"gainers"] != NULL) {
+            NSArray *topGainResponse = responseDictionary[@"gainers"];
+            NSArray *topGainers = [MarketMoverModel initWithArray: topGainResponse];
+            marketMovers[@"gainers"] = topGainers;
         }
         
-        completion(marketMovers, error);
-    }];
+        if(responseDictionary[@"losers"] != NULL) {
+            NSArray *topGainResponse = responseDictionary[@"losers"];
+            NSArray *topLosers = [MarketMoverModel initWithArray: topGainResponse];
+            marketMovers[@"losers"] = topLosers;
+        }
+    }
     
-    [task resume];
+    completion(marketMovers, error);
 }
 
 - (void)fetchActiveStocks:(void (^)(NSArray<ActiveStockModel*>*  _Nullable, NSError* _Nullable))completion {
-    NSURL *baseURL = [[NSURL alloc]initWithString: @"https://data.alpaca.markets/v1beta1/screener/stocks/most-actives"];
-    NSURLComponents *components = [NSURLComponents componentsWithURL:baseURL resolvingAgainstBaseURL:NO];
-    NSURLQueryItem *responseCountQueryItem = [NSURLQueryItem queryItemWithName:@"top"
-                                                                         value: @"20"];
-    NSURLQueryItem *responseByQueryItem = [NSURLQueryItem queryItemWithName:@"by"
-                                                                         value: @"volume"];
-    components.queryItems = @[responseCountQueryItem, responseByQueryItem];
-    NSURL *finalURL = components.URL;
+    NSString *urlString = [NSString stringWithFormat:@"%@%@", Constants.alpacaBaseURL, Constants.marketMostActiveStocksEndPoint];
+    NSURL *url = [NSURL URLWithString:urlString];
+    NSDictionary *queryParams = @{ @"top": @"20",
+                                   @"by": @"volume"};
     
-    NSMutableURLRequest *request = [[NSMutableURLRequest alloc]initWithURL:finalURL];
-    [request setHTTPMethod:@"GET"];
-    [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
-    [request setValue:@"PKYZ8FLRID2JGVKBLDJA" forHTTPHeaderField:@"APCA-API-KEY-ID"];
-    [request setValue:@"ECVgORFsR9EunOvZrSBqmSgz9VzPHOJqTc9C2g0H" forHTTPHeaderField:@"APCA-API-SECRET-KEY"];
-    
-    NSURLSessionDataTask *task = [_urlSession dataTaskWithRequest: request
-                                                completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
-        
-        
-        NSArray *mostActiveStocks = [[NSArray alloc]init];
-        if(data != NULL) {
-            NSError *decodingError;
-            NSDictionary *responseDictionary = [NSJSONSerialization JSONObjectWithData: data options: 0 error: &decodingError];
-            
-            if(responseDictionary[@"most_actives"] != NULL) {
-                NSArray *responseArray = responseDictionary[@"most_actives"];
-                mostActiveStocks = [ActiveStockModel initWithArray:responseArray];
-            }
-        }
-            
-        completion(mostActiveStocks, nil);
-        
+    [self.networkManager sendRequestWithURL:url
+                                     method:@"GET"
+                                queryParams:queryParams
+                                    headers:nil
+                                       body:nil
+                                 completion:^(NSData * _Nullable data, NSError * _Nullable error) {
+        [self parseActiveMovers:data completion:completion];
     }];
+}
+
+- (void)parseActiveMovers:(nullable NSData*)data completion:(void (^)(NSArray<ActiveStockModel*>*  _Nullable, NSError* _Nullable))completion {
+    NSArray *mostActiveStocks = [[NSArray alloc]init];
+    if(data != NULL) {
+        NSError *decodingError;
+        NSDictionary *responseDictionary = [NSJSONSerialization JSONObjectWithData: data options: 0 error: &decodingError];
+        
+        if(responseDictionary[@"most_actives"] != NULL) {
+            NSArray *responseArray = responseDictionary[@"most_actives"];
+            mostActiveStocks = [ActiveStockModel initWithArray:responseArray];
+        }
+    }
     
-    [task resume];
+    completion(mostActiveStocks, nil);
 }
 
 @end

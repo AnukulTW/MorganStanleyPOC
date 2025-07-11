@@ -21,6 +21,10 @@ public class Constants: NSObject {
     public static let marketAsset = "v2/assets"
     private static let latestQuotes_Alpaca = "v2/stocks/quotes/latest"
     private static let latestQuotes_Prime = "fx/quote"
+    public static let marketMoversEndPoint = "v1beta1/screener/stocks/movers"
+    public static let marketMostActiveStocksEndPoint = "v1beta1/screener/stocks/most-actives"
+    //
+
     
     public static let isEnablePrimeAPI = true
     

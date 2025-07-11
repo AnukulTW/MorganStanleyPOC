@@ -4,6 +4,7 @@
 
 #import "MarketAssetClient.h"
 #import "NetworkConnectionManager.h"
+#import "NetworkManaging.h"
 #import "AssetModel.h"
 #import "AssetQuoteModel.h"
 #import "PriceModel.h"
