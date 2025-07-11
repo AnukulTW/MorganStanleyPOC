@@ -10,6 +10,8 @@
 #import "ActiveStockView.h"
 #import "MarketMovementClient/MarketMovementAPIClient.h"
 #import "MarketMoversViewController.h"
+#import "NetworkConnectionManager.h"
+#import "MorganStanleyTradingPOC-Swift.h"
 
 @interface MarketViewController ()<MarketMoverActionDelegate>
 @property (nonatomic, nonnull ,strong) MarketMoverView *marketMoverView;
@@ -28,7 +30,9 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     _networkOperationQueue = dispatch_queue_create("com.example.networkOperationQueue", DISPATCH_QUEUE_CONCURRENT);
-    _client = [[MarketMovementAPIClient alloc]init];
+    NetworkConnectionManagerSwift *ntwrkManager = [[NetworkConnectionManagerSwift alloc] initWithApiKey:Constants.apiKey apiSecret:Constants.apiSecret];
+    //NetworkConnectionManager *ntwrkManager = [NetworkConnectionManager.alloc initWithAPIKey:Constants.apiKey apiSecret:Constants.apiSecret];
+    _client = [[MarketMovementAPIClient alloc]initWithNetworkManager:ntwrkManager];
     [self fetchData];
     [self setupUIComponents];
     [self layoutContraints];

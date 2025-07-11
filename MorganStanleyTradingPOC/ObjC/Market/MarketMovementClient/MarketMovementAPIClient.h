@@ -8,10 +8,11 @@
 #import <Foundation/Foundation.h>
 #import "MarketMoverModel.h"
 #import "ActiveStockModel.h"
-
+#import "NetworkManaging.h"
 NS_ASSUME_NONNULL_BEGIN
 
 @interface MarketMovementAPIClient : NSObject
+- (instancetype)initWithNetworkManager:(id<NetworkManaging>)networkManager;
 - (void)fetchMarketTopMovers:(void (^)(NSMutableDictionary<NSString* ,NSArray<MarketMoverModel*>* >* _Nullable , NSError* _Nullable))completion;
 - (void)fetchActiveStocks:(void (^)(NSArray<ActiveStockModel*>*  _Nullable, NSError* _Nullable))completion;
 @end
