@@ -14,11 +14,13 @@
     if (self) {
         _bidPrice = [[PriceModel alloc]initWithDictionary: @{
             @"price": dict[@"bidPrice"],
-            @"priceDirection": dict[@"bidPriceDirection"]
+            @"priceDirection": dict[@"bidPriceDirection"],
+            @"priceType": @(AssetPriceTypeBid)
         }];
         _askPrice = [[PriceModel alloc]initWithDictionary: @{
             @"price": dict[@"askPrice"],
-            @"priceDirection": dict[@"askPriceDirection"]
+            @"priceDirection": dict[@"askPriceDirection"],
+            @"priceType": @(AssetPriceTypeAsk)
         }];
     }
     return self;
@@ -28,12 +30,14 @@
     
     [_bidPrice updatePriceModel: @{
         @"price": dict[@"bidPrice"],
-        @"priceDirection": dict[@"bidPriceDirection"]
+        @"priceDirection": dict[@"bidPriceDirection"],
+        @"priceType": @(AssetPriceTypeBid)
     }];
     
     [_askPrice updatePriceModel: @{
         @"price": dict[@"askPrice"],
-        @"priceDirection": dict[@"askPriceDirection"]
+        @"priceDirection": dict[@"askPriceDirection"],
+        @"priceType": @(AssetPriceTypeAsk)
     }];
     
     

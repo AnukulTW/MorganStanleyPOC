@@ -13,11 +13,17 @@ typedef NS_ENUM(NSInteger, AssetPriceChangeDirection) {
     AssetPriceChangeDirectionDown = 2
 };
 
+typedef NS_ENUM(NSInteger, AssetPriceType) {
+    AssetPriceTypeBid = 0,
+    AssetPriceTypeAsk = 1
+};
+
 NS_ASSUME_NONNULL_BEGIN
 
 @interface PriceModel : NSObject
 @property(nonatomic, assign) Float32 price;
 @property(nonatomic, assign) AssetPriceChangeDirection direction;
+@property(nonatomic, assign) AssetPriceType priceType;
 
 - (instancetype)initWithDictionary: (NSDictionary*) dict;
 - (void)updatePriceModel: (NSDictionary*) dict;

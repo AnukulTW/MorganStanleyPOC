@@ -52,10 +52,13 @@
     
     // Default headers
     [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
-    [request setValue:self.apiKey forHTTPHeaderField:@"APCA-API-KEY-ID"];
-    [request setValue:self.apiSecret forHTTPHeaderField:@"APCA-API-SECRET-KEY"];
     
-    
+    if(Constants.isEnablePrimeAPI) {
+        [request setValue: @"412a1eadfd-aee20f3516-sz2frh" forHTTPHeaderField:@"X-API-KEY"];
+    } else {
+        [request setValue:self.apiKey forHTTPHeaderField:@"APCA-API-KEY-ID"];
+        [request setValue:self.apiSecret forHTTPHeaderField:@"APCA-API-SECRET-KEY"];
+    }
     
     // Custom headers
     for (NSString *headerKey in headers) {

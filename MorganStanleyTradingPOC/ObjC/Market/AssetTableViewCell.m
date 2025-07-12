@@ -81,12 +81,12 @@
 }
 
 - (void)setupAssetAskPriceView {
-    _assetAskPriceView = [[AssetPriceView alloc]init];
+    _assetAskPriceView = [[AssetPriceView alloc]initWithFlowType:AssetListFlow];
     _assetAskPriceView.translatesAutoresizingMaskIntoConstraints = NO;
 }
 
 - (void)setupAssetBidPriceView {
-    _assetBidPriceView = [[AssetPriceView alloc]init];
+    _assetBidPriceView = [[AssetPriceView alloc]initWithFlowType:AssetListFlow];
     _assetBidPriceView.translatesAutoresizingMaskIntoConstraints = NO;
 }
 

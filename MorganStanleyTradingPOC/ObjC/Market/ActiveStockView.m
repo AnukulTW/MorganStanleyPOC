@@ -12,8 +12,6 @@
 @property (nonatomic, nonnull ,strong) UIStackView *contentStackView;
 @property (nonatomic, nonnull ,strong) UILabel *titleLabel;
 @property (nonatomic, nonnull ,strong) UILabel *subTitleLabel;
-
-
 @end
 
 @implementation ActiveStockView

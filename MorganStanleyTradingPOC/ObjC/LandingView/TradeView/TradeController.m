@@ -82,7 +82,7 @@
            ) {
             
             NSString *assetName = responseDict[assetNameKey];
-            
+            AssetPriceModel *priceModel;
             if(weakSelf.livePriceDictionary[assetName] == NULL) {
                 
                 Float32 currentBidPrice = [responseDict[bidPriceKey] floatValue];
@@ -91,21 +91,27 @@
                 NSUInteger bidPriceDirection = 0;
                 NSUInteger askPriceDirection = 0;
                 
-                AssetPriceModel *priceModel = [[AssetPriceModel alloc]initWithQuoteDictionary: @{
+                priceModel = [[AssetPriceModel alloc]initWithQuoteDictionary: @{
                     @"bidPrice": @(currentBidPrice),
                     @"askPrice": @(currentAskPrice),
                     @"bidPriceDirection": @(bidPriceDirection),
                     @"askPriceDirection": @(askPriceDirection)
                 }];
                 
-                weakSelf.livePriceDictionary[assetName] = priceModel;
-                [self.handler didReceivePrice: priceModel forAsset:assetName];
-                
             } else {
-                AssetPriceModel *model = [self updatePriceModel:responseDict];
-                weakSelf.livePriceDictionary[assetName] = model;
-                [self.handler didReceivePrice: model forAsset:assetName];
+                priceModel = [self updatePriceModel:responseDict];
             }
+            
+            weakSelf.livePriceDictionary[assetName] = priceModel;
+            
+            NSDictionary *userInfo = @{@"priceModel": priceModel};
+            NSString *notificationName = [@"AssetPriceDidChange_" stringByAppendingString:assetName];
+
+            [[NSNotificationCenter defaultCenter] postNotificationName: notificationName
+                                                                object:nil
+                                                              userInfo:userInfo];
+            
+            [self.handler didReceivePrice: priceModel forAsset:assetName];
         }
     });
 

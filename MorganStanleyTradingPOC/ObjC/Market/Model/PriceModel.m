@@ -14,6 +14,7 @@
     if (self) {
         _price = [dict[@"price"] floatValue];
         _direction = [dict[@"priceDirection"] integerValue];
+        _priceType = [dict[@"priceType"] integerValue];
     }
     return self;
 }
@@ -21,6 +22,7 @@
 - (void)updatePriceModel: (NSDictionary*) dict {
     _price = [dict[@"price"] floatValue];
     _direction = [dict[@"priceDirection"] integerValue];
+    _priceType = [dict[@"priceType"] integerValue];
 }
 
 @end

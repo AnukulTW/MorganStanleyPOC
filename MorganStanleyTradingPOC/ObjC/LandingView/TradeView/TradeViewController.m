@@ -16,8 +16,10 @@
 #import "MarketAssetClient.h"
 #import "TradeController.h"
 #import <MorganStanleyTradingPOC-Swift.h>
-@interface TradeViewController ()<UITableViewDataSource, SymbolsHandler>
-//@property (nonatomic, nonnull, strong) SocketConnectionManager *socket;
+#import "AssetDetailViewController.h"
+
+
+@interface TradeViewController ()<UITableViewDataSource, UITableViewDelegate, SymbolsHandler>
 @property (nonatomic, nonnull, strong) TradeController *controller;
 @property (nonatomic, nonnull, strong) UITableView *instrumentList;
 @property (nonatomic, nonnull, strong) NSArray *assetList;
@@ -59,10 +61,10 @@
 - (void)layoutInstrumentListConstraints {
     [self.view addSubview:_instrumentList];
     [NSLayoutConstraint activateConstraints: @[
-        [_instrumentList.topAnchor constraintEqualToAnchor: self.view.topAnchor],
-        [_instrumentList.leadingAnchor constraintEqualToAnchor: self.view.leadingAnchor],
-        [_instrumentList.trailingAnchor constraintEqualToAnchor: self.view.trailingAnchor],
-        [_instrumentList.bottomAnchor constraintEqualToAnchor: self.view.bottomAnchor],
+        [_instrumentList.topAnchor constraintEqualToAnchor: self.view.safeAreaLayoutGuide.topAnchor],
+        [_instrumentList.leadingAnchor constraintEqualToAnchor: self.view.safeAreaLayoutGuide.leadingAnchor],
+        [_instrumentList.trailingAnchor constraintEqualToAnchor: self.view.safeAreaLayoutGuide.trailingAnchor],
+        [_instrumentList.bottomAnchor constraintEqualToAnchor: self.view.safeAreaLayoutGuide.bottomAnchor],
     ]];
 }
 
@@ -81,15 +83,18 @@
     _instrumentList = [[UITableView alloc]init];
     _instrumentList.translatesAutoresizingMaskIntoConstraints = NO;
     _instrumentList.dataSource = self;
+    _instrumentList.delegate = self;
     [_instrumentList registerClass: [AssetTableViewCell self]
             forCellReuseIdentifier: @"AssetTableViewCell"];
     _instrumentList.hidden = true;
+    
 }
 
 - (nonnull UITableViewCell *)tableView:(nonnull UITableView *)tableView cellForRowAtIndexPath:(nonnull NSIndexPath *)indexPath {
     AssetTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier: @"AssetTableViewCell"
                                                                forIndexPath:indexPath];
     
+    cell.selectionStyle = UITableViewCellSelectionStyleNone;
     NSString *model = _assetList[indexPath.row];
     AssetPriceModel *livePrice = [_controller fetchPrice: model];
     if (livePrice != NULL) {
@@ -108,6 +113,17 @@
 
 - (CGFloat)tableView:(UITableView *)tableView estimatedHeightForRowAtIndexPath:(nonnull NSIndexPath *)indexPath {
     return UITableViewAutomaticDimension;
+}
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    NSString *assetName = _assetList[indexPath.row];
+    AssetPriceModel *livePrice = [_controller fetchPrice: assetName];
+
+    AssetDetailViewController *vc = [[AssetDetailViewController alloc]initWithAssetName:assetName
+                                                                             priceModel:livePrice];
+    [UIView animateWithDuration: 0.3 animations:^{
+            [self.navigationController pushViewController:vc animated:YES];
+    }];
 }
 
 - (void)fetchAsset {

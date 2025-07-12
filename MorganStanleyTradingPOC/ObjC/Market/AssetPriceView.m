@@ -9,14 +9,15 @@
 
 @interface AssetPriceView()
 @property (nonatomic, nonnull ,strong) UILabel *priceLabel;
-
+@property (nonatomic, assign) AssetPriceViewFlowType flowType;
 @end
 
 @implementation AssetPriceView
 
-- (instancetype)initWithFrame:(CGRect)frame {
-    self = [super initWithFrame:frame];
+- (instancetype)initWithFlowType:(AssetPriceViewFlowType)flowType {
+    self = [super init];
     if (self) {
+        _flowType = flowType;
         [self setupUIComponents];
         [self layoutContraints];
         self.layer.cornerRadius = 4.0;
@@ -51,6 +52,11 @@
 
 - (void)configureWithPrice: (PriceModel *)model {
     NSString *priceString = [NSString stringWithFormat:@"%.5f", model.price];
+    NSString *priceTypeString = model.priceType == AssetPriceTypeAsk ? @"Buy ": @"Sell ";
+    if (_flowType == AssetDetailFlow) {
+        priceString = [priceTypeString stringByAppendingString: priceString];
+    }
+    
     _priceLabel.text = priceString;
     
     

@@ -118,6 +118,8 @@
         return;
     }
     
+    NSString *charlieSendString = [[NSString alloc] initWithData: data encoding:NSUTF8StringEncoding];
+
     NSDictionary *quotesDict = json[@"quotes"];
     NSMutableArray *assetQuoteArray = [[NSMutableArray alloc]initWithCapacity: [symbols count]];
     if(quotesDict != NULL) {
