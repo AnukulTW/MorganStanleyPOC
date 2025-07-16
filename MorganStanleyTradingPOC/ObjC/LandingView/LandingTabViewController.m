@@ -10,7 +10,7 @@
 #import "MarketViewController.h"
 #import "MorganStanleyTradingPOC-Swift.h"
 
-#define USE_SWIFT_API 0
+#define USE_SWIFT_API 1
 
 @implementation LandingTabViewController
 

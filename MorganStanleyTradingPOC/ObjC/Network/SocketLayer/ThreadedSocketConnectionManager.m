@@ -188,7 +188,7 @@ didOpenWithProtocol:(NSString *)protocol {
     if (_isEnablePrimeAPI) {
         return @{
             @"op": @"auth",
-            @"key": @"412a1eadfd-aee20f3516-sz2frh"
+            @"key": @"11d868a349-51e423f8ee-szhlbx"
         };
     } else {
         return @{

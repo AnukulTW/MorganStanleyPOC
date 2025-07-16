@@ -23,7 +23,7 @@ class TradeViewModel: NSObject, ObservableObject, SymbolsHandler {
         //self.assetClient.requiredSymbol = requiredSymbols
 
         // Initialize trade controller with socket enabler
-        self.controller = TradeController(socketEnabler: ThreadedSocketConnectionManager())
+        self.controller = TradeController(socketEnabler: SocketConnectionManager())
         super.init()
 
         // Wire up delegate for socket events

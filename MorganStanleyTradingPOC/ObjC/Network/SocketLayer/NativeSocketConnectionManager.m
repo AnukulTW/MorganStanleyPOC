@@ -18,7 +18,7 @@
 @implementation NativeSocketConnectionManager
 @synthesize connectionDelegate;
 //NSString * const kWebSocketURLString = @"wss://euc2.primeapi.io";
-//NSString * const kAuthKey = @"271a3da4f2-be99aec8bd-sz2vu6";
+//NSString * const kAuthKey = @"11d868a349-51e423f8ee-szhlbx";
 
 - (instancetype)init {
     self = [super init];
@@ -118,7 +118,7 @@ didOpenWithProtocol:(NSString *) protocol{
     if (Constants.isEnablePrimeAPI) {
         return @{
             @"op": @"auth",
-            @"key": @"412a1eadfd-aee20f3516-sz2frh"
+            @"key": @"11d868a349-51e423f8ee-szhlbx"
         };
         
     } else {
