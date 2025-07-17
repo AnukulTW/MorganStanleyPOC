@@ -6,7 +6,8 @@
 //
 
 #import "AppDelegate.h"
-
+@import Alamofire;
+@import Firebase;
 @interface AppDelegate ()
 
 @end
@@ -16,6 +17,12 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     // Override point for customization after application launch.
+    [FIRApp configure];
+    self.remoteConfig = [FIRRemoteConfig remoteConfig];
+    FIRRemoteConfigSettings *remoteConfigSettings = [[FIRRemoteConfigSettings alloc] init];
+    // This sets the minimum time interval between successful fetches (e.g., 3600 seconds = 1 hour)
+    remoteConfigSettings.minimumFetchInterval = 3600;
+    self.remoteConfig.configSettings = remoteConfigSettings;
     return YES;
 }
 
