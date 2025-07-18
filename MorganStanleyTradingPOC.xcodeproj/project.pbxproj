@@ -35,6 +35,8 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
+				"messy-code/Services/CoreData/News/NewsItem.m",
+				"messy-code/Services/CoreData/Stock/StockItem.m",
 			);
 			target = E5E1E8D22E165AA5007D9A21 /* MorganStanleyTradingPOC */;
 		};

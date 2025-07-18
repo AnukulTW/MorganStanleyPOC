@@ -13,7 +13,7 @@
 @end
 
 @implementation Config
-
+@synthesize remoteConfig = _remoteConfig;
 + (instancetype)sharedInstance {
     static Config *instance;
     static dispatch_once_t onceToken;
@@ -25,22 +25,22 @@
 }
 
 - (void)initializeRemoteConfig {
-    self.remoteConfig = [FIRRemoteConfig remoteConfig];
+    _remoteConfig = [FIRRemoteConfig remoteConfig];
     FIRRemoteConfigSettings *remoteConfigSettings = [[FIRRemoteConfigSettings alloc] init];
     remoteConfigSettings.minimumFetchInterval = 3600; // 1 hour
-    self.remoteConfig.configSettings = remoteConfigSettings;
+    _remoteConfig.configSettings = remoteConfigSettings;
 }
 
 -(NSString*)getBaseURL {
-    return [self.remoteConfig configValueForKey:@"BaseURL"].stringValue ?: @"https://default-api.example.com";
+    return [_remoteConfig configValueForKey:@"BaseURL"].stringValue ?: @"https://default-api.example.com";
 }
 
 -(NSString*)getAPIKey {
-    return [self.remoteConfig configValueForKey:@"APIKey"].stringValue ?: @"default-api-key";
+    return [_remoteConfig configValueForKey:@"APIKey"].stringValue ?: @"default-api-key";
 }
 
 -(NSString*)getAPISecret {
-    return [self.remoteConfig configValueForKey:@"APISecret"].stringValue ?: @"default-api";
+    return [_remoteConfig configValueForKey:@"APISecret"].stringValue ?: @"default-api";
 }
 
 @end
